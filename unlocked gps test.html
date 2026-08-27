@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>Ricks GPS Test 123</title>
+
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
+<style>
+
+html,
+body {
+
+    margin: 0;
+    padding: 0;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+}
+
+#map {
+
+    width: 100%;
+    height: 100%;
+
+}
+
+#testMessage {
+
+    position: fixed;
+
+    top: 15px;
+    left: 15px;
+    right: 15px;
+
+    z-index: 9999;
+
+    background: rgba(0,0,0,0.8);
+
+    color: white;
+
+    padding: 15px;
+
+    border-radius: 12px;
+
+    font-family: Arial, sans-serif;
+
+    text-align: center;
+
+    font-weight: bold;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="map"></div>
+
+<div id="testMessage">
+
+    UNLOCKED GPS TEST
+
+</div>
+
+
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+></script>
+
+
+<script>
+
+/* ==========================================
+   MAP
+========================================== */
+
+const map = L.map('map', {
+
+    zoomControl: true,
+
+    attributionControl: true,
+
+    dragging: true,
+
+    touchZoom: true,
+
+    scrollWheelZoom: true,
+
+    doubleClickZoom: true,
+
+    boxZoom: true,
+
+    keyboard: true,
+
+    zoomAnimation: false,
+
+    fadeAnimation: false,
+
+    markerZoomAnimation: false
+
+});
+
+
+/* ==========================================
+   INITIAL MAP VIEW
+========================================== */
+
+map.setView(
+
+    [52.6083, 1.7305],
+
+    13,
+
+    {
+        animate: false
+    }
+
+);
+
+
+/* ==========================================
+   MAP TILES
+========================================== */
+
+L.tileLayer(
+
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+
+    {
+
+        attribution:
+            '&copy; OpenStreetMap contributors',
+
+        maxZoom: 19,
+
+        minZoom: 3
+
+    }
+
+).addTo(map);
+
+
+/* ==========================================
+   PLAYER MARKER
+========================================== */
+
+let playerMarker = null;
+
+let firstGPSFix = false;
+
+
+/* ==========================================
+   START GPS
+========================================== */
+
+map.locate({
+
+    setView: false,
+
+    watch: true,
+
+    enableHighAccuracy: true,
+
+    maximumAge: 1000,
+
+    timeout: 15000
+
+});
+
+
+/* ==========================================
+   GPS LOCATION FOUND
+========================================== */
+
+map.on(
+
+    'locationfound',
+
+    function(e) {
+
+        console.log(
+            'GPS LOCATION:',
+            e.latlng
+        );
+
+
+        /* ----------------------------------
+           CREATE BLUE PLAYER MARKER
+        ---------------------------------- */
+
+        if (
+            playerMarker === null
+        ) {
+
+            playerMarker = L.circleMarker(
+
+                e.latlng,
+
+                {
+
+                    radius: 9,
+
+                    color: 'white',
+
+                    weight: 3,
+
+                    fillColor: '#1683ff',
+
+                    fillOpacity: 1
+
+                }
+
+            ).addTo(map);
+
+
+            playerMarker.bindPopup(
+
+                '📍 You are here!'
+
+            );
+
+
+            /*
+               Centre the map ONLY ONCE.
+
+               This is the ONLY place in
+               the entire program where GPS
+               changes the map position.
+            */
+
+            if (!firstGPSFix) {
+
+                firstGPSFix = true;
+
+
+                map.setView(
+
+                    e.latlng,
+
+                    18,
+
+                    {
+                        animate: false
+                    }
+
+                );
+
+            }
+
+        }
+
+
+        /* ----------------------------------
+           MOVE EXISTING MARKER
+        ---------------------------------- */
+
+        else {
+
+            playerMarker.setLatLng(
+
+                e.latlng
+
+            );
+
+        }
+
+
+        console.log(
+
+            'CURRENT MAP ZOOM:',
+
+            map.getZoom()
+
+        );
+
+    }
+
+);
+
+
+/* ==========================================
+   GPS ERROR
+========================================== */
+
+map.on(
+
+    'locationerror',
+
+    function(e) {
+
+        console.error(
+
+            'GPS ERROR:',
+
+            e
+
+        );
+
+        document.getElementById(
+
+            'testMessage'
+
+        ).textContent =
+
+            'GPS ERROR — Please allow location access';
+
+    }
+
+);
+
+
+/* ==========================================
+   MAP DEBUG
+========================================== */
+
+map.on(
+
+    'zoomend',
+
+    function() {
+
+        console.log(
+
+            'ZOOM:',
+
+            map.getZoom()
+
+        );
+
+    }
+
+);
+
+
+/* ==========================================
+   MAP SIZE
+========================================== */
+
+setTimeout(
+
+    function() {
+
+        map.invalidateSize();
+
+    },
+
+    500
+
+);
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>UNLOCKED</title>
+
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
+
+       #map {
+    height: 100%;
+    width: 100%;
+}
+
+#gameHUD {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    z-index: 1000;
+
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+
+    padding: 12px 16px;
+
+    background: rgba(0, 0, 0, 0.75);
+    border-radius: 14px;
+
+    color: white;
+    font-family: Arial, sans-serif;
+
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.gameTitle {
+    font-size: 20px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.playerStats {
+    display: flex;
+    gap: 15px;
+    font-size: 14px;
+    font-weight: bold;
+}
+        }
+        .gameMenu {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.gameMenu button {
+    flex: 1;
+    border: none;
+    background: rgba(255, 255, 255, 0.12);
+    color: white;
+
+    padding: 10px 8px;
+
+    border-radius: 10px;
+
+    font-size: 12px;
+    font-weight: bold;
+
+    cursor: pointer;
+}
+
+.gameMenu button:active {
+    transform: scale(0.95);
+}
+    </style>
+</head>
+
+<body>
+
+    <div id="map"></div>
+    <div id="gameHUD">
+
+    <div class="gameTitle">UNLOCKED</div>
+
+    <div class="playerStats">
+    <span id="playerLevel">LEVEL 1</span>
+    <span id="playerXP">⭐ 0 XP</span>
+</div>
+
+    <div class="gameMenu">
+        <button>🗺️ MAP</button>
+        <button>🏆 DISCOVERIES</button>
+        <button>📊 PROGRESS</button>
+    </div>
+
+</div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+    const map = L.map('map').setView([52.6083, 1.7305], 13);
+
+    L.tileLayer(
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        {
+            attribution: '&copy; OpenStreetMap contributors'
+        }
+    ).addTo(map);
+    // UNLOCKED - FOG OF WAR
+// ===============================
+
+// ===============================
+// UNLOCKED - FOG OF WAR
+// ===============================
+
+// ===============================
+// UNLOCKED - PLAYER PROGRESSION
+// ===============================
+
+let playerXP = parseInt(
+    localStorage.getItem('unlockedPlayerXP') || '0'
+);
+
+function getPlayerLevel() {
+    return Math.floor(playerXP / 100) + 1;
+}
+
+function updatePlayerHUD() {
+
+    const level = getPlayerLevel();
+
+    document.getElementById('playerLevel').textContent =
+        'LEVEL ' + level;
+
+    document.getElementById('playerXP').textContent =
+        '⭐ ' + playerXP + ' XP';
+}
+
+function awardXP(amount) {
+
+    const oldLevel = getPlayerLevel();
+
+    playerXP += amount;
+
+    localStorage.setItem(
+        'unlockedPlayerXP',
+        playerXP
+    );
+
+    const newLevel = getPlayerLevel();
+
+    updatePlayerHUD();
+
+    if (newLevel > oldLevel) {
+        alert(
+            '🎉 LEVEL UP!\n\nYou are now Level ' + newLevel + '!'
+        );
+    }
+}
+
+updatePlayerHUD();
+let lastExploredLat = null;
+let lastExploredLng = null;
+
+const revealRadius = 50; // metres
+const revealSpacing = 10; // only record movement every 10 metres
+
+// ===============================
+// UNLOCKED LANDMARK SYSTEM
+// ===============================
+
+const landmarks = [
+    {
+        id: "test-landmark",
+        name: "First Discovery",
+        lat: 0,
+        lng: 0,
+        xp: 100,
+        unlocked: false,
+        placed: false
+    }
+];
+
+let exploredAreas = JSON.parse(localStorage.getItem('unlockedExploredAreas') || '[]');
+
+
+// Create the fog canvas
+const fogCanvas = document.createElement('canvas');
+
+fogCanvas.style.position = 'absolute';
+fogCanvas.style.top = '0';
+fogCanvas.style.left = '0';
+fogCanvas.style.width = '100%';
+fogCanvas.style.height = '100%';
+fogCanvas.style.pointerEvents = 'none';
+fogCanvas.style.zIndex = '300';
+
+map.getContainer().appendChild(fogCanvas);
+
+const fogContext = fogCanvas.getContext('2d');
+
+function resizeFogCanvas() {
+
+    const size = map.getSize();
+
+    fogCanvas.width = size.x;
+    fogCanvas.height = size.y;
+
+    drawFog();
+}
+
+map.on('resize', resizeFogCanvas);
+window.addEventListener('resize', resizeFogCanvas);
+
+setTimeout(function () {
+    map.invalidateSize();
+    resizeFogCanvas();
+}, 500);
+
+function distanceMetres(lat1, lng1, lat2, lng2) {
+
+    const R = 6371000;
+
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+
+    const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(lat1 * Math.PI / 180) *
+        Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLng / 2) ** 2;
+
+    return R * 2 * Math.atan2(
+        Math.sqrt(a),
+        Math.sqrt(1 - a)
+    );
+}
+
+function drawFog() {
+
+    const size = map.getSize();
+
+    fogContext.clearRect(
+        0,
+        0,
+        size.x,
+        size.y
+    );
+
+    // Dark fog
+    fogContext.fillStyle = 'rgba(17, 17, 17, 0.93)';
+
+    fogContext.fillRect(
+        0,
+        0,
+        size.x,
+        size.y
+    );
+
+    // Cut out explored areas
+    fogContext.globalCompositeOperation = 'destination-out';
+
+    exploredAreas.forEach(function (area) {
+
+        const point = map.latLngToContainerPoint([
+            area.lat,
+            area.lng
+        ]);
+
+        const metresPerPixel =
+    map.distance(
+        map.containerPointToLatLng([point.x, point.y]),
+        map.containerPointToLatLng([point.x + 1, point.y])
+    );
+
+const radiusPixels = revealRadius / metresPerPixel;
+
+        const gradient = fogContext.createRadialGradient(
+    point.x,
+    point.y,
+    radiusPixels * 0.75,
+    point.x,
+    point.y,
+    radiusPixels
+);
+
+gradient.addColorStop(0, 'rgba(0, 0, 0, 1)');
+gradient.addColorStop(0.9, 'rgba(0, 0, 0, 1)');
+gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+fogContext.fillStyle = gradient;
+
+fogContext.beginPath();
+
+fogContext.arc(
+    point.x,
+    point.y,
+    radiusPixels,
+    0,
+    Math.PI * 2
+);
+
+fogContext.fill();
+    });
+
+    fogContext.globalCompositeOperation = 'source-over';
+}
+
+function revealLocation(lat, lng) {
+
+    // First GPS reading after loading
+    // Set the starting position but don't award XP
+    if (lastExploredLat === null) {
+
+    lastExploredLat = lat;
+    lastExploredLng = lng;
+
+    exploredAreas.push({
+        lat: lat,
+        lng: lng
+    });
+
+    localStorage.setItem(
+        'unlockedExploredAreas',
+        JSON.stringify(exploredAreas)
+    );
+
+    drawFog();
+
+    return;
+}
+
+    // Ignore tiny GPS movements
+    if (
+        distanceMetres(
+            lastExploredLat,
+            lastExploredLng,
+            lat,
+            lng
+        ) < revealSpacing
+    ) {
+        return;
+    }
+
+    // This is genuine new movement
+    exploredAreas.push({
+        lat: lat,
+        lng: lng
+    });
+
+    awardXP(10);
+
+    localStorage.setItem(
+        'unlockedExploredAreas',
+        JSON.stringify(exploredAreas)
+    );
+
+    lastExploredLat = lat;
+    lastExploredLng = lng;
+
+    drawFog();
+}
+
+// Resize when map changes
+map.on('resize', resizeFogCanvas);
+map.on('move', drawFog);
+map.on('zoom', drawFog);
+
+// Initial canvas setup
+resizeFogCanvas();
+
+    // Ask the device for its location
+   map.locate({
+    setView: true,
+    maxZoom: 18,
+    enableHighAccuracy: true,
+    watch: true
+});
+
+    
+
+let playerMarker = null;
+
+map.on('locationfound', function (e) {
+
+    if (playerMarker === null) {
+        playerMarker = L.marker(e.latlng)
+            .addTo(map)
+            .bindPopup('📍 You are here!');
+    } else {
+        playerMarker.setLatLng(e.latlng);
+    }
+
+    revealLocation(e.latlng.lat, e.latlng.lng);
+
+    // ===============================
+    // TEST LANDMARK
+    // ===============================
+
+    if (!landmarks[0].placed) {
+
+        landmarks[0].lat = e.latlng.lat;
+        landmarks[0].lng = e.latlng.lng;
+        landmarks[0].placed = true;
+
+        console.log('⭐ Test landmark placed at your starting position');
+    }
+
+    // Check distance to landmark
+    if (landmarks[0].placed && !landmarks[0].unlocked) {
+
+        const landmarkLocation = L.latLng(
+            landmarks[0].lat,
+            landmarks[0].lng
+        );
+
+        const distance = map.distance(
+            e.latlng,
+            landmarkLocation
+        );
+
+        console.log(
+            'Distance from landmark:',
+            Math.round(distance) + 'm'
+        );
+
+        if (distance <= 30) {
+
+            landmarks[0].unlocked = true;
+
+            alert(
+                '⭐ LANDMARK UNLOCKED!\n\n' +
+                landmarks[0].name +
+                '\n+' + landmarks[0].xp + ' XP'
+            );
+
+            playerXP += landmarks[0].xp;
+
+            localStorage.setItem(
+                'unlockedXP',
+                playerXP
+            );
+
+            updatePlayerHUD();
+        }
+    }
+
+    console.log('Your location:', e.latlng);
+});
+
+// Location failed
+map.on('locationerror', function (e) {
+    alert('We could not get your location. Please allow location access.');
+});
+</script>
+
+</body>
+</html>

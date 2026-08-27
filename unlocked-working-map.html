@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>UNLOCKED MAP TEST</title>
+
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
+<style>
+
+html,
+body {
+
+    margin: 0;
+    padding: 0;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+}
+
+#map {
+
+    width: 100%;
+    height: 100%;
+
+}
+
+#testMessage {
+
+    position: fixed;
+
+    top: 15px;
+    left: 15px;
+    right: 15px;
+
+    z-index: 9999;
+
+    background: rgba(0,0,0,0.8);
+
+    color: white;
+
+    padding: 15px;
+
+    border-radius: 12px;
+
+    font-family: Arial, sans-serif;
+
+    text-align: center;
+
+    font-weight: bold;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="map"></div>
+
+<div id="testMessage">
+
+    UNLOCKED MAP TEST
+
+</div>
+
+
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+></script>
+
+
+<script>
+
+/* ==========================================
+   CREATE MAP
+========================================== */
+
+const map = L.map('map', {
+
+    zoomControl: true,
+
+    attributionControl: true,
+
+    dragging: true,
+
+    touchZoom: true,
+
+    scrollWheelZoom: true,
+
+    doubleClickZoom: true,
+
+    boxZoom: true,
+
+    keyboard: true,
+
+    zoomAnimation: false,
+
+    fadeAnimation: false,
+
+    markerZoomAnimation: false
+
+});
+
+
+/* ==========================================
+   INITIAL VIEW
+========================================== */
+
+map.setView(
+
+    [52.6083, 1.7305],
+
+    13,
+
+    {
+        animate: false
+    }
+
+);
+
+
+/* ==========================================
+   OPENSTREETMAP
+========================================== */
+
+L.tileLayer(
+
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+
+    {
+
+        attribution:
+            '&copy; OpenStreetMap contributors',
+
+        maxZoom: 19,
+
+        minZoom: 3
+
+    }
+
+).addTo(map);
+
+
+/* ==========================================
+   MAP DEBUGGING
+========================================== */
+
+map.on('zoomstart', function() {
+
+    console.log(
+        'ZOOM START:',
+        map.getZoom()
+    );
+
+});
+
+
+map.on('zoomend', function() {
+
+    console.log(
+        'ZOOM END:',
+        map.getZoom()
+    );
+
+});
+
+
+map.on('movestart', function() {
+
+    console.log(
+        'MOVE START'
+    );
+
+});
+
+
+map.on('moveend', function() {
+
+    console.log(
+        'MOVE END:',
+        map.getCenter()
+    );
+
+});
+
+
+/* ==========================================
+   MAKE SURE MAP SIZE IS CORRECT
+========================================== */
+
+setTimeout(function() {
+
+    map.invalidateSize();
+
+}, 500);
+
+
+</script>
+
+</body>
+
+</html>

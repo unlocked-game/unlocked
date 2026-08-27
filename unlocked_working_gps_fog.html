@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>UNLOCKED Exploration Test</title>
+
+<link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
+<style>
+
+html,
+body {
+
+    margin: 0;
+    padding: 0;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+}
+
+#map {
+
+    width: 100%;
+    height: 100%;
+
+}
+
+#status {
+
+    position: fixed;
+
+    top: 10px;
+    left: 10px;
+    right: 10px;
+
+    z-index: 9999;
+
+    background:
+        rgba(0,0,0,0.8);
+
+    color: white;
+
+    padding: 12px;
+
+    border-radius: 10px;
+
+    font-family: Arial, sans-serif;
+
+    font-weight: bold;
+
+    text-align: center;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div id="map"></div>
+
+<div id="status">
+    UNLOCKED — WAITING FOR GPS...
+</div>
+
+
+<script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+></script>
+
+
+<script>
+
+/* =====================================================
+   MAP
+===================================================== */
+
+const map =
+    L.map('map');
+
+
+map.setView(
+
+    [52.6083, 1.7305],
+
+    13
+
+);
+
+
+/* =====================================================
+   MAP TILES
+===================================================== */
+
+L.tileLayer(
+
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+
+    {
+
+        attribution:
+            '&copy; OpenStreetMap contributors',
+
+        maxZoom: 19
+
+    }
+
+).addTo(map);
+
+
+/* =====================================================
+   PLAYER PANE
+===================================================== */
+
+const playerPane =
+    map.createPane(
+        'playerPane'
+    );
+
+
+playerPane.style.zIndex =
+    650;
+
+
+/* =====================================================
+   SETTINGS
+===================================================== */
+
+const revealRadius =
+    50;
+
+const revealSpacing =
+    10;
+
+
+/* =====================================================
+   PLAYER
+===================================================== */
+
+let marker =
+    null;
+
+
+/* =====================================================
+   EXPLORATION STORAGE
+===================================================== */
+
+let exploredAreas = [];
+
+
+try {
+
+    exploredAreas = JSON.parse(
+
+        localStorage.getItem(
+            'unlockedExploredAreas'
+        ) || '[]'
+
+    );
+
+
+    if (
+        !Array.isArray(
+            exploredAreas
+        )
+    ) {
+
+        exploredAreas = [];
+
+    }
+
+}
+catch (error) {
+
+    console.error(
+        'Could not load exploration:',
+        error
+    );
+
+    exploredAreas = [];
+
+}
+
+
+let lastExploredLat =
+    null;
+
+
+let lastExploredLng =
+    null;
+
+
+/* =====================================================
+   FOG CANVAS
+===================================================== */
+
+const fogCanvas =
+    document.createElement(
+        'canvas'
+    );
+
+
+fogCanvas.style.position =
+    'absolute';
+
+fogCanvas.style.left =
+    '0';
+
+fogCanvas.style.top =
+    '0';
+
+fogCanvas.style.width =
+    '100%';
+
+fogCanvas.style.height =
+    '100%';
+
+fogCanvas.style.pointerEvents =
+    'none';
+
+fogCanvas.style.zIndex =
+    400;
+
+
+map.getContainer()
+    .appendChild(
+        fogCanvas
+    );
+
+
+const fogContext =
+    fogCanvas.getContext(
+        '2d'
+    );
+
+
+/* =====================================================
+   RESIZE
+===================================================== */
+
+function resizeFog() {
+
+    const size =
+        map.getSize();
+
+
+    if (
+        size.x <= 0 ||
+        size.y <= 0
+    ) {
+
+        return;
+
+    }
+
+
+    fogCanvas.width =
+        size.x;
+
+
+    fogCanvas.height =
+        size.y;
+
+
+    drawFog();
+
+}
+
+
+window.addEventListener(
+    'resize',
+    resizeFog
+);
+
+
+map.on(
+    'resize',
+    resizeFog
+);
+
+
+/* =====================================================
+   DISTANCE
+===================================================== */
+
+function distanceMetres(
+
+    lat1,
+    lng1,
+    lat2,
+    lng2
+
+) {
+
+    const R =
+        6371000;
+
+
+    const dLat =
+        (lat2 - lat1)
+        * Math.PI / 180;
+
+
+    const dLng =
+        (lng2 - lng1)
+        * Math.PI / 180;
+
+
+    const a =
+
+        Math.sin(
+            dLat / 2
+        ) ** 2
+
+        +
+
+        Math.cos(
+            lat1 * Math.PI / 180
+        )
+
+        *
+
+        Math.cos(
+            lat2 * Math.PI / 180
+        )
+
+        *
+
+        Math.sin(
+            dLng / 2
+        ) ** 2;
+
+
+    return (
+
+        R *
+
+        2 *
+
+        Math.atan2(
+
+            Math.sqrt(a),
+
+            Math.sqrt(
+                1 - a
+            )
+
+        )
+
+    );
+
+}
+
+
+/* =====================================================
+   PIXEL RADIUS
+===================================================== */
+
+function getRadiusPixels(
+    point
+) {
+
+    const here =
+        map.containerPointToLatLng(
+
+            L.point(
+                point.x,
+                point.y
+            )
+
+        );
+
+
+    const onePixel =
+        map.containerPointToLatLng(
+
+            L.point(
+                point.x + 1,
+                point.y
+            )
+
+        );
+
+
+    const metresPerPixel =
+        map.distance(
+            here,
+            onePixel
+        );
+
+
+    if (
+        !isFinite(
+            metresPerPixel
+        ) ||
+
+        metresPerPixel <= 0
+    ) {
+
+        return 0;
+
+    }
+
+
+    return (
+        revealRadius /
+        metresPerPixel
+    );
+
+}
+
+
+/* =====================================================
+   REVEAL CIRCLE
+===================================================== */
+
+function revealCircle(
+
+    lat,
+    lng
+
+) {
+
+    const point =
+        map.latLngToContainerPoint(
+
+            L.latLng(
+                lat,
+                lng
+            )
+
+        );
+
+
+    const radiusPixels =
+        getRadiusPixels(
+            point
+        );
+
+
+    if (
+        radiusPixels <= 0
+    ) {
+
+        return;
+
+    }
+
+
+    const gradient =
+        fogContext.createRadialGradient(
+
+            point.x,
+            point.y,
+
+            radiusPixels * 0.70,
+
+            point.x,
+            point.y,
+
+            radiusPixels
+
+        );
+
+
+    gradient.addColorStop(
+
+        0,
+
+        'rgba(0,0,0,1)'
+
+    );
+
+
+    gradient.addColorStop(
+
+        0.85,
+
+        'rgba(0,0,0,1)'
+
+    );
+
+
+    gradient.addColorStop(
+
+        1,
+
+        'rgba(0,0,0,0)'
+
+    );
+
+
+    fogContext.fillStyle =
+        gradient;
+
+
+    fogContext.beginPath();
+
+
+    fogContext.arc(
+
+        point.x,
+        point.y,
+
+        radiusPixels,
+
+        0,
+        Math.PI * 2
+
+    );
+
+
+    fogContext.fill();
+
+}
+
+
+/* =====================================================
+   DRAW FOG
+===================================================== */
+
+function drawFog() {
+
+    const size =
+        map.getSize();
+
+
+    if (
+        size.x <= 0 ||
+        size.y <= 0
+    ) {
+
+        return;
+
+    }
+
+
+    /*
+       Cover map.
+    */
+
+    fogContext.globalCompositeOperation =
+        'source-over';
+
+
+    fogContext.clearRect(
+
+        0,
+        0,
+
+        size.x,
+        size.y
+
+    );
+
+
+    fogContext.fillStyle =
+        'rgba(17,17,17,0.93)';
+
+
+    fogContext.fillRect(
+
+        0,
+        0,
+
+        size.x,
+        size.y
+
+    );
+
+
+    /*
+       Cut out ALL saved explored areas.
+    */
+
+    fogContext.globalCompositeOperation =
+        'destination-out';
+
+
+    for (
+        let i = 0;
+        i < exploredAreas.length;
+        i++
+    ) {
+
+        const area =
+            exploredAreas[i];
+
+
+        if (
+            typeof area.lat !== 'number' ||
+            typeof area.lng !== 'number'
+        ) {
+
+            continue;
+
+        }
+
+
+        revealCircle(
+
+            area.lat,
+            area.lng
+
+        );
+
+    }
+
+
+    /*
+       Always reveal around player.
+    */
+
+    if (
+        marker !== null
+    ) {
+
+        const position =
+            marker.getLatLng();
+
+
+        revealCircle(
+
+            position.lat,
+            position.lng
+
+        );
+
+    }
+
+
+    fogContext.globalCompositeOperation =
+        'source-over';
+
+}
+
+
+/* =====================================================
+   MAP MOVEMENT
+===================================================== */
+
+map.on(
+    'move',
+    drawFog
+);
+
+
+map.on(
+    'zoom',
+    drawFog
+);
+
+
+map.on(
+    'moveend',
+    drawFog
+);
+
+
+map.on(
+    'zoomend',
+    drawFog
+);
+
+
+/* =====================================================
+   SAVE EXPLORATION
+===================================================== */
+
+function saveExploredLocation(
+
+    lat,
+    lng
+
+) {
+
+    /*
+       First location.
+    */
+
+    if (
+        lastExploredLat === null
+    ) {
+
+        lastExploredLat =
+            lat;
+
+
+        lastExploredLng =
+            lng;
+
+
+        exploredAreas.push({
+
+            lat: lat,
+
+            lng: lng
+
+        });
+
+
+        localStorage.setItem(
+
+            'unlockedExploredAreas',
+
+            JSON.stringify(
+                exploredAreas
+            )
+
+        );
+
+
+        drawFog();
+
+
+        return;
+
+    }
+
+
+    /*
+       Distance since last saved point.
+    */
+
+    const distance =
+        distanceMetres(
+
+            lastExploredLat,
+            lastExploredLng,
+
+            lat,
+            lng
+
+        );
+
+
+    /*
+       Don't save tiny GPS movements.
+    */
+
+    if (
+        distance < revealSpacing
+    ) {
+
+        return;
+
+    }
+
+
+    /*
+       Save new explored point.
+    */
+
+    exploredAreas.push({
+
+        lat: lat,
+
+        lng: lng
+
+    });
+
+
+    localStorage.setItem(
+
+        'unlockedExploredAreas',
+
+        JSON.stringify(
+            exploredAreas
+        )
+
+    );
+
+
+    lastExploredLat =
+        lat;
+
+
+    lastExploredLng =
+        lng;
+
+
+    drawFog();
+
+
+    console.log(
+
+        'EXPLORED POINT SAVED:',
+
+        lat,
+
+        lng
+
+    );
+
+}
+
+
+/* =====================================================
+   GPS
+===================================================== */
+
+map.locate({
+
+    setView: false,
+
+    watch: true,
+
+    enableHighAccuracy: true,
+
+    maximumAge: 1000,
+
+    timeout: 15000
+
+});
+
+
+/* =====================================================
+   FIRST GPS FIX
+===================================================== */
+
+let firstGPSFix =
+    false;
+
+
+map.on(
+
+    'locationfound',
+
+    function(e) {
+
+        console.log(
+            'GPS:',
+            e.latlng.lat,
+            e.latlng.lng
+        );
+
+
+        document.getElementById(
+            'status'
+        ).textContent =
+
+            'UNLOCKED — GPS WORKING — ' +
+
+            e.latlng.lat.toFixed(5) +
+
+            ', ' +
+
+            e.latlng.lng.toFixed(5);
+
+
+        /*
+           Centre ONCE.
+        */
+
+        if (
+            !firstGPSFix
+        ) {
+
+            firstGPSFix =
+                true;
+
+
+            map.setView(
+
+                e.latlng,
+
+                16,
+
+                {
+                    animate: false
+                }
+
+            );
+
+        }
+
+
+        /*
+           Create / move player.
+        */
+
+        if (
+            marker === null
+        ) {
+
+            marker =
+                L.circleMarker(
+
+                    e.latlng,
+
+                    {
+
+                        pane:
+                            'playerPane',
+
+                        radius:
+                            9,
+
+                        color:
+                            'white',
+
+                        weight:
+                            2,
+
+                        fillColor:
+                            '#1683ff',
+
+                        fillOpacity:
+                            1
+
+                    }
+
+                ).addTo(map);
+
+        }
+        else {
+
+            marker.setLatLng(
+                e.latlng
+            );
+
+        }
+
+
+        /*
+           Save explored location.
+        */
+
+        saveExploredLocation(
+
+            e.latlng.lat,
+
+            e.latlng.lng
+
+        );
+
+
+        drawFog();
+
+    }
+
+);
+
+
+/* =====================================================
+   GPS ERROR
+===================================================== */
+
+map.on(
+
+    'locationerror',
+
+    function(e) {
+
+        console.error(
+            'GPS ERROR:',
+            e
+        );
+
+
+        document.getElementById(
+            'status'
+        ).textContent =
+
+            'GPS ERROR — ' +
+            e.message;
+
+    }
+
+);
+
+
+/* =====================================================
+   STARTUP
+===================================================== */
+
+setTimeout(
+
+    function() {
+
+        map.invalidateSize();
+
+        resizeFog();
+
+        drawFog();
+
+    },
+
+    500
+
+);
+
+</script>
+
+</body>
+
+</html>
