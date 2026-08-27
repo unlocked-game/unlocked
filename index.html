@@ -281,6 +281,11 @@ const revealRadius =
 
 /*
    Actual exploration grid.
+
+   Each cell is:
+
+   5m × 5m = 25m²
+   = 25 XP
 */
 
 const gridSize =
@@ -299,9 +304,6 @@ const maxGPSAccuracy =
 /*
    Maximum sudden GPS jump
    we will accept.
-
-   Anything bigger than this
-   is treated as GPS noise.
 */
 
 const maxGPSJump =
@@ -315,6 +317,16 @@ const maxGPSJump =
 
 const minimumMovement =
     3;
+
+
+/*
+   GPS must stabilise for
+   this long before exploration
+   begins.
+*/
+
+const gpsStabilityTime =
+    5000;
 
 
 /* =====================================================
@@ -337,6 +349,28 @@ let acceptedLng =
 
 let hasAcceptedGPS =
     false;
+
+
+/* =====================================================
+   GPS STABILITY STATE
+===================================================== */
+
+let gpsStableSince =
+    null;
+
+
+/* =====================================================
+   GPS CELL CONFIRMATION
+===================================================== */
+
+let candidateGridCell =
+    null;
+
+let candidateLat =
+    null;
+
+let candidateLng =
+    null;
 
 
 /* =====================================================
@@ -730,13 +764,100 @@ function exploreGridCell(
 
     ) {
 
+        candidateGridCell =
+            null;
+
+        candidateLat =
+            null;
+
+        candidateLng =
+            null;
+
         return;
 
     }
 
 
     /*
-       New land.
+       First time seeing
+       this new cell.
+
+       Do NOT award XP yet.
+
+       Store it as a candidate.
+    */
+
+    if (
+
+        candidateGridCell === null
+
+    ) {
+
+        candidateGridCell =
+            cell.key;
+
+        candidateLat =
+            lat;
+
+        candidateLng =
+            lng;
+
+        console.log(
+
+            'CANDIDATE CELL:',
+            cell.key
+
+        );
+
+        return;
+
+    }
+
+
+    /*
+       If GPS moved into a
+       different new cell before
+       confirming the candidate,
+       replace the candidate.
+
+       This prevents an old GPS
+       position from being confirmed
+       later.
+    */
+
+    if (
+
+        candidateGridCell !==
+        cell.key
+
+    ) {
+
+        candidateGridCell =
+            cell.key;
+
+        candidateLat =
+            lat;
+
+        candidateLng =
+            lng;
+
+        console.log(
+
+            'NEW CANDIDATE CELL:',
+            cell.key
+
+        );
+
+        return;
+
+    }
+
+
+    /*
+       Same candidate cell has
+       now been reported again.
+
+       Confirm it.
     */
 
     exploredGridCells.push(
@@ -768,11 +889,21 @@ function exploreGridCell(
 
     console.log(
 
-        'NEW GRID CELL:',
+        'CONFIRMED NEW GRID CELL:',
         cell.key,
         '+25 XP'
 
     );
+
+
+    candidateGridCell =
+        null;
+
+    candidateLat =
+        null;
+
+    candidateLng =
+        null;
 
 
     drawFog();
@@ -1250,9 +1381,10 @@ function drawFog() {
     /*
        Small temporary reveal
        around player.
-    */
 
-    
+       This remains disabled
+       as a permanent reveal.
+    */
 
 
     fogContext.globalCompositeOperation =
@@ -1316,10 +1448,6 @@ map.locate({
 
 let firstGPSFix =
     false;
-
-    let gpsStableSince = null;
-
-const gpsStabilityTime = 5000;
 
 
 /* =====================================================
@@ -1404,11 +1532,15 @@ map.on(
                 gpsLng;
 
 
+            gpsStableSince =
+                Date.now();
+
+
             document.getElementById(
                 'status'
             ).textContent =
 
-                'UNLOCKED — GPS LOCKED — ±' +
+                'UNLOCKED — GPS STABILISING — ±' +
 
                 Math.round(
                     accuracy
@@ -1483,55 +1615,61 @@ map.on(
 
 
             /*
-   Start GPS stabilisation.
+               IMPORTANT:
 
-   We do NOT award exploration
-   immediately after getting GPS.
-*/
+               First GPS fix does NOT
+               award exploration.
+            */
 
-gpsStableSince =
-    Date.now();
+            drawFog();
 
-
-drawFog();
-
-return;
+            return;
 
         }
 
-/*
-   GPS stabilisation period.
 
-   During this period we update the
-   reference position but do not
-   unlock any cells.
-*/
+        /*
+           GPS stabilisation period.
 
-if (
+           During this period we update
+           the reference position but do
+           not unlock any cells.
+        */
 
-    gpsStableSince !== null &&
+        if (
 
-    Date.now() -
-    gpsStableSince <
-    gpsStabilityTime
+            gpsStableSince !== null &&
 
-) {
+            Date.now() -
+            gpsStableSince <
+            gpsStabilityTime
 
-    acceptedLat =
-        gpsLat;
+        ) {
 
-    acceptedLng =
-        gpsLng;
+            acceptedLat =
+                gpsLat;
 
-
-    marker.setLatLng(
-        e.latlng
-    );
+            acceptedLng =
+                gpsLng;
 
 
-    return;
+            marker.setLatLng(
+                e.latlng
+            );
 
-}
+
+            document.getElementById(
+                'status'
+            ).textContent =
+
+                'UNLOCKED — GPS STABILISING';
+
+
+            return;
+
+        }
+
+
         /*
            Calculate distance from
            the last accepted position.
@@ -1636,6 +1774,9 @@ if (
 
         /*
            Check the new 5m cell.
+
+           The function now requires
+           confirmation before awarding XP.
         */
 
         exploreGridCell(
