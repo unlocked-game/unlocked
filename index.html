@@ -372,6 +372,168 @@ body {
 
 }
 
+
+/* ==========================================
+   DISCOVERY FOUND POPUP
+========================================== */
+
+#discoveryPopup {
+
+    display: none;
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 10000;
+
+    background:
+        rgba(0,0,0,0.72);
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 25px;
+
+    box-sizing: border-box;
+
+}
+
+.discoveryPopupCard {
+
+    width: 100%;
+
+    max-width: 380px;
+
+    background:
+        rgba(15,15,15,0.98);
+
+    color: white;
+
+    border-radius: 22px;
+
+    padding: 30px 22px 24px;
+
+    text-align: center;
+
+    font-family: Arial, sans-serif;
+
+    box-shadow:
+        0 12px 40px rgba(0,0,0,0.7);
+
+    animation:
+        discoveryPopupIn
+        0.25s
+        ease-out;
+
+}
+
+.discoveryIcon {
+
+    font-size: 52px;
+
+    margin-bottom: 10px;
+
+}
+
+.discoveryPopupTitle {
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+    letter-spacing: 2px;
+
+    opacity: 0.7;
+
+}
+
+.discoveryPopupName {
+
+    font-size: 25px;
+
+    font-weight: bold;
+
+    margin-top: 8px;
+
+}
+
+.discoveryPopupDescription {
+
+    font-size: 14px;
+
+    line-height: 1.5;
+
+    opacity: 0.75;
+
+    margin-top: 10px;
+
+}
+
+.discoveryPopupReward {
+
+    font-size: 22px;
+
+    font-weight: bold;
+
+    margin-top: 20px;
+
+}
+
+.discoveryOKButton {
+
+    width: 100%;
+
+    border: none;
+
+    background:
+        rgba(255,255,255,0.16);
+
+    color: white;
+
+    padding: 15px;
+
+    border-radius: 13px;
+
+    font-size: 15px;
+
+    font-weight: bold;
+
+    margin-top: 22px;
+
+}
+
+.discoveryOKButton:active {
+
+    transform: scale(0.98);
+
+}
+
+@keyframes discoveryPopupIn {
+
+    from {
+
+        opacity: 0;
+
+        transform:
+            scale(0.92)
+            translateY(10px);
+
+    }
+
+    to {
+
+        opacity: 1;
+
+        transform:
+            scale(1)
+            translateY(0);
+
+    }
+
+}
+
 </style>
 
 </head>
@@ -507,6 +669,55 @@ body {
 </div>
 
 
+<!-- ==========================================
+     DISCOVERY FOUND POPUP
+========================================== -->
+
+<div id="discoveryPopup">
+
+    <div class="discoveryPopupCard">
+
+        <div class="discoveryIcon">
+            🔎
+        </div>
+
+        <div class="discoveryPopupTitle">
+            DISCOVERY FOUND!
+        </div>
+
+        <div
+            class="discoveryPopupName"
+            id="popupDiscoveryName"
+        >
+            The First Discovery
+        </div>
+
+        <div
+            class="discoveryPopupDescription"
+            id="popupDiscoveryDescription"
+        >
+            You found your first UNLOCKED discovery.
+        </div>
+
+        <div
+            class="discoveryPopupReward"
+            id="popupDiscoveryXP"
+        >
+            ⭐ +100 XP
+        </div>
+
+        <button
+            class="discoveryOKButton"
+            onclick="closeDiscoveryPopup()"
+        >
+            OK
+        </button>
+
+    </div>
+
+</div>
+
+
 <div id="status">
     UNLOCKED — WAITING FOR GPS...
 </div>
@@ -574,117 +785,41 @@ playerPane.style.zIndex =
    SETTINGS
 ===================================================== */
 
-/*
-   Small temporary visual aid
-   around the player.
-
-   This is NOT the permanent
-   exploration area.
-*/
-
 const revealRadius =
     5;
 
-
-/*
-   REAL EXPLORATION WIDTH
-
-   The player unlocks a corridor
-   approximately 15 metres wide
-   around their walking route.
-
-   7.5m either side of the route.
-*/
 
 const explorationRadius =
     7.5;
 
 
-/*
-   Underlying permanent grid.
-
-   Each cell is:
-
-   5m × 5m = 25m²
-   = 25 XP
-*/
-
 const gridSize =
     5;
 
-
-/*
-   Maximum GPS accuracy accepted
-   for exploration.
-*/
 
 const maxGPSAccuracy =
     10;
 
 
-/*
-   Maximum single GPS movement
-   accepted between readings.
-
-   Larger jumps are treated as
-   unreliable GPS.
-*/
-
 const maxGPSJump =
     15;
 
-
-/*
-   Minimum movement before another
-   exploration calculation.
-*/
 
 const minimumMovement =
     3;
 
 
-/*
-   GPS must stabilise before
-   exploration starts.
-*/
-
 const gpsStabilityTime =
     5000;
 
-
-/*
-   WALKING SPEED LIMIT
-
-   3.0 m/s = 10.8 km/h
-
-   Anything above this is treated
-   as vehicle-like movement.
-
-   Normal walking should remain
-   comfortably below this.
-*/
 
 const maximumWalkingSpeed =
     3.0;
 
 
-/*
-   If GPS reports a speed above
-   this value, exploration is
-   immediately blocked.
-*/
-
 const hardVehicleSpeed =
     4.0;
 
-
-/*
-   How often we sample the route
-   when filling the corridor.
-
-   2.5m gives a smooth continuous
-   exploration footprint.
-*/
 
 const corridorSampleSpacing =
     2.5;
@@ -747,14 +882,9 @@ let playerXP = parseInt(
 );
 
 
-/*
-   Locked UNLOCKED progression.
-
-   XP required from Level L
-   to Level L+1:
-
-   750 × L²
-*/
+/* =====================================================
+   LEVEL SYSTEM
+===================================================== */
 
 function getPlayerLevel() {
 
@@ -909,11 +1039,6 @@ const EARTH_RADIUS =
     6378137;
 
 
-/*
-   Latitude/longitude
-   → Web Mercator metres.
-*/
-
 function latLngToMetres(
 
     lat,
@@ -965,11 +1090,6 @@ function latLngToMetres(
 
 }
 
-
-/*
-   Web Mercator metres
-   → latitude/longitude.
-*/
 
 function metresToLatLng(
 
@@ -1033,10 +1153,6 @@ function metresToLatLng(
 }
 
 
-/*
-   Get exact 5m × 5m cell.
-*/
-
 function getGridCell(
 
     lat,
@@ -1095,16 +1211,6 @@ function getGridCell(
 /* =====================================================
    POINT → CELL DISTANCE
 ===================================================== */
-
-/*
-   Returns the shortest distance
-   from a point to a grid cell.
-
-   This lets us create an actual
-   7.5m-radius corridor without
-   making the corridor unnecessarily
-   large.
-*/
 
 function distancePointToCell(
 
@@ -1230,11 +1336,6 @@ function unlockCellsAroundPoint(
         );
 
 
-    /*
-       Number of cells needed
-       around the exploration radius.
-    */
-
     const cellRange =
 
         Math.ceil(
@@ -1277,11 +1378,6 @@ function unlockCellsAroundPoint(
 
         ) {
 
-            /*
-               Ignore cells already
-               permanently explored.
-            */
-
             const key =
                 x +
                 '_' +
@@ -1300,12 +1396,6 @@ function unlockCellsAroundPoint(
 
             }
 
-
-            /*
-               Check actual distance
-               between the GPS point
-               and the cell.
-            */
 
             const distance =
 
@@ -1340,11 +1430,6 @@ function unlockCellsAroundPoint(
 
     }
 
-
-    /*
-       Award XP only for genuinely
-       new cells.
-    */
 
     if (
         newCells > 0
@@ -1452,14 +1537,6 @@ function unlockWalkingCorridor(
         );
 
 
-    /*
-       Work out how many sample
-       points are required.
-
-       Every 2.5m gives us a
-       continuous corridor.
-    */
-
     const samples = Math.max(
 
         1,
@@ -1532,11 +1609,6 @@ function unlockWalkingCorridor(
 
     }
 
-
-    /*
-       If nothing new was unlocked,
-       don't keep changing the HUD.
-    */
 
     if (
 
@@ -1880,10 +1952,6 @@ function drawFog() {
     );
 
 
-    /*
-       Dark fog.
-    */
-
     fogContext.fillStyle =
         'rgba(17,17,17,0.93)';
 
@@ -1898,11 +1966,6 @@ function drawFog() {
 
     );
 
-
-    /*
-       Permanently reveal
-       explored grid cells.
-    */
 
     fogContext.globalCompositeOperation =
         'destination-out';
@@ -2134,10 +2197,6 @@ map.on(
         );
 
 
-        /* =============================================
-           GPS ACCURACY CHECK
-        ============================================= */
-
         if (
 
             accuracy > maxGPSAccuracy
@@ -2160,10 +2219,6 @@ map.on(
 
         }
 
-
-        /* =============================================
-           FIRST GOOD GPS FIX
-        ============================================= */
 
         if (
 
@@ -2212,10 +2267,6 @@ map.on(
                 'm';
 
 
-            /*
-               Centre map once.
-            */
-
             if (
 
                 !firstGPSFix
@@ -2241,10 +2292,6 @@ map.on(
 
             }
 
-
-            /*
-               Create player marker.
-            */
 
             marker =
 
@@ -2277,21 +2324,12 @@ map.on(
                 ).addTo(map);
 
 
-            /*
-               First GPS fix does NOT
-               unlock anything.
-            */
-
             drawFog();
 
             return;
 
         }
 
-
-        /* =============================================
-           CALCULATE MOVEMENT
-        ============================================= */
 
         const movement =
 
@@ -2325,14 +2363,6 @@ map.on(
             movement /
             elapsedSeconds;
 
-
-        /*
-           Use the browser's GPS speed
-           if available.
-
-           Otherwise calculate it
-           ourselves.
-        */
 
         let effectiveSpeed =
             calculatedSpeed;
@@ -2391,18 +2421,6 @@ map.on(
         );
 
 
-        /* =============================================
-           VEHICLE DETECTION
-        ============================================= */
-
-        /*
-           Hard vehicle speed.
-
-           If the GPS gives us a clear
-           vehicle-like speed, immediately
-           block exploration.
-        */
-
         if (
 
             typeof gpsSpeed ===
@@ -2435,21 +2453,6 @@ map.on(
                 '🚗 VEHICLE MOVEMENT — EXPLORATION PAUSED';
 
 
-            console.log(
-
-                'VEHICLE DETECTED — GPS SPEED:',
-                gpsSpeed
-
-            );
-
-
-            /*
-               We still update the
-               player marker.
-
-               But NOTHING is unlocked.
-            */
-
             acceptedLat =
                 gpsLat;
 
@@ -2473,12 +2476,6 @@ map.on(
 
         }
 
-
-        /*
-           Calculated speed can also
-           catch vehicle movement when
-           e.speed is unavailable.
-        */
 
         if (
 
@@ -2501,17 +2498,6 @@ map.on(
                 '🚗 FAST MOVEMENT — EXPLORATION PAUSED';
 
 
-            console.log(
-
-                'FAST MOVEMENT REJECTED:',
-
-                calculatedSpeed.toFixed(2),
-
-                'm/s'
-
-            );
-
-
             acceptedLat =
                 gpsLat;
 
@@ -2536,15 +2522,6 @@ map.on(
         }
 
 
-        /*
-           If we're back below the
-           walking threshold, allow
-           exploration again.
-
-           The user must still produce
-           valid walking movement.
-        */
-
         if (
 
             effectiveSpeed <=
@@ -2557,10 +2534,6 @@ map.on(
 
         }
 
-
-        /* =============================================
-           GPS STABILISATION
-        ============================================= */
 
         if (
 
@@ -2605,10 +2578,6 @@ map.on(
         }
 
 
-        /* =============================================
-           IGNORE TINY MOVEMENT
-        ============================================= */
-
         if (
 
             movement <
@@ -2628,10 +2597,6 @@ map.on(
 
         }
 
-
-        /* =============================================
-           GPS JUMP CHECK
-        ============================================= */
 
         if (
 
@@ -2658,15 +2623,6 @@ map.on(
                 'GPS SIGNAL — MOVEMENT CHECKING';
 
 
-            /*
-               Do NOT move the accepted
-               exploration reference.
-
-               This prevents a GPS jump
-               from creating a huge
-               exploration streak.
-            */
-
             if (marker) {
 
                 marker.setLatLng(
@@ -2680,10 +2636,6 @@ map.on(
 
         }
 
-
-        /* =============================================
-           FINAL WALKING VALIDATION
-        ============================================= */
 
         if (
             vehicleDetected
@@ -2711,11 +2663,6 @@ map.on(
         }
 
 
-        /*
-           Movement is now considered
-           valid walking movement.
-        */
-
         const previousLat =
             acceptedLat;
 
@@ -2732,10 +2679,6 @@ map.on(
         acceptedTime =
             gpsTimestamp;
 
-
-        /* =============================================
-           MOVE PLAYER
-        ============================================= */
 
         if (marker) {
 
@@ -2758,10 +2701,6 @@ map.on(
 
             'm';
 
-
-        /* =============================================
-           UNLOCK WALKING CORRIDOR
-        ============================================= */
 
         unlockWalkingCorridor(
 
@@ -2963,10 +2902,6 @@ function closeDiscoveries() {
 }
 
 
-/* =====================================================
-   PROGRESS PLACEHOLDER
-===================================================== */
-
 function showProgress() {
 
     console.log(
@@ -2979,19 +2914,6 @@ function showProgress() {
 /* =====================================================
    DISCOVERY SYSTEM
 ===================================================== */
-
-/*
-   Discoveries are permanently stored.
-
-   Each discovery contains:
-
-   id
-   name
-   description
-   category
-   xp
-   discoveredAt
-*/
 
 let discoveries = [];
 
@@ -3076,6 +2998,57 @@ function saveDiscoveries() {
 
 
 /* =====================================================
+   SHOW DISCOVERY POPUP
+===================================================== */
+
+function showDiscoveryPopup(
+    discovery
+) {
+
+    document.getElementById(
+        'popupDiscoveryName'
+    ).textContent =
+        discovery.name;
+
+
+    document.getElementById(
+        'popupDiscoveryDescription'
+    ).textContent =
+        discovery.description;
+
+
+    document.getElementById(
+        'popupDiscoveryXP'
+    ).textContent =
+
+        '⭐ +' +
+        discovery.xp +
+        ' XP';
+
+
+    document.getElementById(
+        'discoveryPopup'
+    ).style.display =
+        'flex';
+
+}
+
+
+/* =====================================================
+   CLOSE DISCOVERY POPUP
+===================================================== */
+
+function closeDiscoveryPopup() {
+
+    document.getElementById(
+        'discoveryPopup'
+    ).style.display =
+        'none';
+
+}
+
+
+/* =====================================================
    ADD DISCOVERY
 ===================================================== */
 
@@ -3088,11 +3061,6 @@ function addDiscovery(
     xp
 
 ) {
-
-    /*
-       A discovery can only ever
-       be discovered once.
-    */
 
     const alreadyDiscovered =
         discoveries.some(
@@ -3154,11 +3122,6 @@ function addDiscovery(
     saveDiscoveries();
 
 
-    /*
-       Discovery XP is added to
-       the player's total XP.
-    */
-
     awardXP(
         xp
     );
@@ -3167,20 +3130,21 @@ function addDiscovery(
     updateDiscoveriesPanel();
 
 
-    document.getElementById(
-        'status'
-    ).textContent =
-
-        '🔎 DISCOVERY FOUND — +' +
-        xp +
-        ' XP';
-
-
     console.log(
 
         'NEW DISCOVERY:',
         newDiscovery
 
+    );
+
+
+    /*
+       Show the persistent
+       Discovery Found popup.
+    */
+
+    showDiscoveryPopup(
+        newDiscovery
     );
 
 
@@ -3216,27 +3180,19 @@ function createTestDiscovery() {
 
 
     if (
-        wasAdded
+        !wasAdded
     ) {
 
-        alert(
+        /*
+           Keep the test button
+           useful after the first test.
+        */
 
-            '🔎 DISCOVERY FOUND!\n\n' +
+        document.getElementById(
+            'status'
+        ).textContent =
 
-            'The First Discovery\n\n' +
-
-            '+100 XP'
-
-        );
-
-    }
-    else {
-
-        alert(
-
-            '🔎 Already discovered!'
-
-        );
+            '🔎 TEST DISCOVERY ALREADY FOUND';
 
     }
 
