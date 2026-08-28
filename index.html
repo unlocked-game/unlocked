@@ -80,7 +80,7 @@ body {
 
     gap: 10px;
 
-    background: rgba(10,10,10,0.90);
+    background: rgba(10,10,10,0.88);
 
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -123,8 +123,6 @@ body {
 .xpArea {
 
     flex: 1;
-
-    min-width: 60px;
 
 }
 
@@ -194,6 +192,7 @@ body {
     position: fixed;
 
     top: 108px;
+
     left: 50%;
 
     transform:
@@ -206,8 +205,7 @@ body {
 
     color: white;
 
-    padding:
-        7px 12px;
+    padding: 7px 12px;
 
     border-radius: 20px;
 
@@ -236,10 +234,9 @@ body {
 
     left: 12px;
     right: 12px;
-
     bottom: 14px;
 
-    z-index: 10000;
+    z-index: 6000;
 
     display: flex;
 
@@ -253,11 +250,8 @@ body {
 
 }
 
-.locationCard {
-
-    flex: 1;
-
-    min-width: 0;
+.locationCard,
+.explorationCard {
 
     background:
         rgba(10,10,10,0.94);
@@ -267,13 +261,18 @@ body {
 
     border-radius: 15px;
 
-    padding:
-        9px 12px;
-
     box-shadow:
         0 5px 20px rgba(0,0,0,0.45);
 
-    overflow: hidden;
+}
+
+.locationCard {
+
+    flex: 1;
+
+    min-width: 0;
+
+    padding: 9px 12px;
 
 }
 
@@ -309,19 +308,7 @@ body {
 
     min-width: 92px;
 
-    background:
-        rgba(10,10,10,0.94);
-
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-
-    border-radius: 15px;
-
-    padding:
-        9px 11px;
-
-    box-shadow:
-        0 5px 20px rgba(0,0,0,0.45);
+    padding: 9px 11px;
 
     text-align: center;
 
@@ -394,7 +381,7 @@ body {
     right: 12px;
     bottom: 12px;
 
-    z-index: 20000;
+    z-index: 10000;
 
     background:
         rgba(10,10,10,0.97);
@@ -420,8 +407,7 @@ body {
 
     display: flex;
 
-    justify-content:
-        space-between;
+    justify-content: space-between;
 
     align-items: center;
 
@@ -459,7 +445,7 @@ body {
 
 
 /* =====================================================
-   DISCOVERY PANEL
+   DISCOVERY
 ===================================================== */
 
 .discoveryStats {
@@ -600,7 +586,7 @@ body {
 
 
 /* =====================================================
-   PROGRESS PANEL
+   PROGRESS
 ===================================================== */
 
 .progressLevel {
@@ -629,8 +615,6 @@ body {
 
     letter-spacing: 2px;
 
-    margin-top: 3px;
-
 }
 
 .progressXPCard {
@@ -650,8 +634,7 @@ body {
 
     display: flex;
 
-    justify-content:
-        space-between;
+    justify-content: space-between;
 
     font-size: 14px;
 
@@ -697,9 +680,6 @@ body {
     background: white;
 
     border-radius: 20px;
-
-    transition:
-        width 0.4s ease;
 
 }
 
@@ -845,7 +825,7 @@ body {
 
     inset: 0;
 
-    z-index: 30000;
+    z-index: 20000;
 
     background:
         rgba(0,0,0,0.74);
@@ -873,23 +853,17 @@ body {
 
     border-radius: 22px;
 
-    padding:
-        30px 22px 24px;
+    padding: 30px 22px 24px;
 
     text-align: center;
 
     font-family: Arial, sans-serif;
-
-    box-shadow:
-        0 12px 40px rgba(0,0,0,0.7);
 
 }
 
 .discoveryIcon {
 
     font-size: 52px;
-
-    margin-bottom: 10px;
 
 }
 
@@ -969,8 +943,7 @@ body {
 
     .topBar {
 
-        padding:
-            9px 10px;
+        padding: 9px 10px;
 
         gap: 7px;
 
@@ -1542,6 +1515,7 @@ body {
 
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
 
 /* =====================================================
@@ -1550,7 +1524,9 @@ body {
 
 const map = L.map('map', {
 
-    zoomControl: false
+    zoomControl: false,
+
+    preferCanvas: true
 
 });
 
@@ -1566,9 +1542,7 @@ map.setView(
 ===================================================== */
 
 L.tileLayer(
-
     'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-
     {
 
         attribution:
@@ -1577,7 +1551,6 @@ L.tileLayer(
         maxZoom: 19
 
     }
-
 ).addTo(map);
 
 
@@ -1588,20 +1561,22 @@ L.tileLayer(
 /*
    IMPORTANT:
 
-   Fog is now a REAL Leaflet pane.
+   Fog is now a proper Leaflet pane.
 
-   It sits ABOVE the map tiles
-   but BELOW the player marker.
+   This keeps the fog attached to the map
+   when the map moves or zooms.
 
+   HUD sits above it.
+
+   Player marker sits above it.
 */
 
 const fogPane =
     map.createPane('fogPane');
 
-fogPane.style.zIndex = 600;
+fogPane.style.zIndex = 500;
 
-fogPane.style.pointerEvents =
-    'none';
+fogPane.style.pointerEvents = 'none';
 
 
 /* =====================================================
@@ -1613,17 +1588,16 @@ const playerPane =
 
 playerPane.style.zIndex = 650;
 
-playerPane.style.pointerEvents =
-    'none';
-
 
 /* =====================================================
-   GAME SETTINGS
+   SETTINGS
 ===================================================== */
 
-const gridSize = 5;
+const revealRadius = 5;
 
 const explorationRadius = 7.5;
+
+const gridSize = 5;
 
 const maxGPSAccuracy = 10;
 
@@ -1638,13 +1612,6 @@ const maximumWalkingSpeed = 3.0;
 const hardVehicleSpeed = 4.0;
 
 const corridorSampleSpacing = 2.5;
-
-
-/* =====================================================
-   EARTH
-===================================================== */
-
-const EARTH_RADIUS = 6378137;
 
 
 /* =====================================================
@@ -1670,6 +1637,8 @@ let gpsStableSince = null;
 
 let vehicleDetected = false;
 
+let vehicleSamples = 0;
+
 let firstGPSFix = false;
 
 
@@ -1677,14 +1646,13 @@ let firstGPSFix = false;
    XP
 ===================================================== */
 
-let playerXP =
-    parseInt(
+let playerXP = parseInt(
 
-        localStorage.getItem(
-            'unlockedPlayerXP'
-        ) || '0'
+    localStorage.getItem(
+        'unlockedPlayerXP'
+    ) || '0'
 
-    );
+);
 
 
 /* =====================================================
@@ -1696,6 +1664,7 @@ function getPlayerLevel() {
     let level = 1;
 
     let totalXP = 0;
+
 
     while (
 
@@ -1713,16 +1682,16 @@ function getPlayerLevel() {
 
     }
 
+
     return level;
 
 }
 
 
-function getTotalXPRequiredForLevel(
-    level
-) {
+function getTotalXPRequiredForLevel(level) {
 
     let total = 0;
+
 
     for (
         let i = 1;
@@ -1735,14 +1704,13 @@ function getTotalXPRequiredForLevel(
 
     }
 
+
     return total;
 
 }
 
 
-function getXPForNextLevel(
-    level
-) {
+function getXPForNextLevel(level) {
 
     return 750 * level * level;
 
@@ -1750,7 +1718,7 @@ function getXPForNextLevel(
 
 
 /* =====================================================
-   PLAYER HUD
+   HUD
 ===================================================== */
 
 function updatePlayerHUD() {
@@ -1813,19 +1781,14 @@ function updatePlayerHUD() {
    AWARD XP
 ===================================================== */
 
-function awardXP(
-    amount
-) {
+function awardXP(amount) {
 
     playerXP += amount;
 
 
     localStorage.setItem(
-
         'unlockedPlayerXP',
-
         playerXP
-
     );
 
 
@@ -1841,6 +1804,7 @@ function awardXP(
 ===================================================== */
 
 let exploredGridCells = [];
+
 
 try {
 
@@ -1868,7 +1832,7 @@ try {
 catch (error) {
 
     console.error(
-        'Grid loading error:',
+        'Could not load grid:',
         error
     );
 
@@ -1878,8 +1842,12 @@ catch (error) {
 
 
 /* =====================================================
-   LAT/LNG → METRES
+   EARTH / GRID
 ===================================================== */
+
+const EARTH_RADIUS =
+    6378137;
+
 
 function latLngToMetres(
     lat,
@@ -1887,7 +1855,6 @@ function latLngToMetres(
 ) {
 
     const x =
-
         EARTH_RADIUS *
         lng *
         Math.PI /
@@ -1895,9 +1862,7 @@ function latLngToMetres(
 
 
     const y =
-
         EARTH_RADIUS *
-
         Math.log(
 
             Math.tan(
@@ -1926,17 +1891,12 @@ function latLngToMetres(
 }
 
 
-/* =====================================================
-   METRES → LAT/LNG
-===================================================== */
-
 function metresToLatLng(
     x,
     y
 ) {
 
     const lng =
-
         (
             x /
             EARTH_RADIUS
@@ -1947,25 +1907,18 @@ function metresToLatLng(
 
 
     const lat =
-
         (
-
             2 *
-
             Math.atan(
 
                 Math.exp(
-
                     y /
                     EARTH_RADIUS
-
                 )
 
             )
-
             -
             Math.PI / 2
-
         )
         *
         180 /
@@ -1982,10 +1935,6 @@ function metresToLatLng(
 
 }
 
-
-/* =====================================================
-   GRID CELL
-===================================================== */
 
 function getGridCell(
     lat,
@@ -2044,19 +1993,29 @@ function distancePointToCell(
 ) {
 
     const cellMinX =
-        cellX * gridSize;
+        cellX *
+        gridSize;
 
 
     const cellMaxX =
-        (cellX + 1) * gridSize;
+        (
+            cellX + 1
+        )
+        *
+        gridSize;
 
 
     const cellMinY =
-        cellY * gridSize;
+        cellY *
+        gridSize;
 
 
     const cellMaxY =
-        (cellY + 1) * gridSize;
+        (
+            cellY + 1
+        )
+        *
+        gridSize;
 
 
     let closestX =
@@ -2068,16 +2027,17 @@ function distancePointToCell(
 
 
     if (
-        pointX < cellMinX
+        pointX <
+        cellMinX
     ) {
 
         closestX =
             cellMinX;
 
     }
-
     else if (
-        pointX > cellMaxX
+        pointX >
+        cellMaxX
     ) {
 
         closestX =
@@ -2087,16 +2047,17 @@ function distancePointToCell(
 
 
     if (
-        pointY < cellMinY
+        pointY <
+        cellMinY
     ) {
 
         closestY =
             cellMinY;
 
     }
-
     else if (
-        pointY > cellMaxY
+        pointY >
+        cellMaxY
     ) {
 
         closestY =
@@ -2157,7 +2118,6 @@ function unlockCellsAroundPoint(
 
 
     for (
-
         let x =
             centreCell.x -
             cellRange;
@@ -2167,11 +2127,9 @@ function unlockCellsAroundPoint(
             cellRange;
 
         x++
-
     ) {
 
         for (
-
             let y =
                 centreCell.y -
                 cellRange;
@@ -2181,11 +2139,12 @@ function unlockCellsAroundPoint(
                 cellRange;
 
             y++
-
         ) {
 
             const key =
-                x + '_' + y;
+                x +
+                '_' +
+                y;
 
 
             if (
@@ -2310,10 +2269,8 @@ function unlockWalkingCorridor(
             1,
 
             Math.ceil(
-
                 distance /
                 corridorSampleSpacing
-
             )
 
         );
@@ -2323,17 +2280,14 @@ function unlockWalkingCorridor(
 
 
     for (
-
         let i = 0;
-
         i <= samples;
-
         i++
-
     ) {
 
         const ratio =
-            i / samples;
+            i /
+            samples;
 
 
         const x =
@@ -2397,29 +2351,20 @@ const fogCanvas =
 fogCanvas.style.position =
     'absolute';
 
-
 fogCanvas.style.left =
     '0';
-
 
 fogCanvas.style.top =
     '0';
 
-
 fogCanvas.style.width =
     '100%';
-
 
 fogCanvas.style.height =
     '100%';
 
-
 fogCanvas.style.pointerEvents =
     'none';
-
-
-fogCanvas.style.display =
-    'block';
 
 
 fogPane.appendChild(
@@ -2434,7 +2379,7 @@ const fogContext =
 
 
 /* =====================================================
-   RESIZE FOG
+   FOG RESIZE
 ===================================================== */
 
 function resizeFog() {
@@ -2493,8 +2438,20 @@ function resizeFog() {
 }
 
 
+window.addEventListener(
+    'resize',
+    resizeFog
+);
+
+
+map.on(
+    'resize',
+    resizeFog
+);
+
+
 /* =====================================================
-   DRAW FOG
+   FOG DRAW
 ===================================================== */
 
 function drawFog() {
@@ -2529,7 +2486,7 @@ function drawFog() {
 
 
     /*
-       Full dark fog.
+       FULL MAP FOG
     */
 
     fogContext.fillStyle =
@@ -2548,8 +2505,8 @@ function drawFog() {
 
 
     /*
-       Cut the explored cells out
-       of the fog.
+       REMOVE FOG FROM
+       EXPLORED GRID CELLS
     */
 
     fogContext.globalCompositeOperation =
@@ -2604,12 +2561,14 @@ function drawFog() {
 
                 (
                     cellX + 1
-                ) *
+                )
+                *
                 gridSize,
 
                 (
                     cellY + 1
-                ) *
+                )
+                *
                 gridSize
 
             );
@@ -2643,23 +2602,17 @@ function drawFog() {
             );
 
 
-        const width =
-            bottomRight.x -
-            topLeft.x;
-
-
-        const height =
-            bottomRight.y -
-            topLeft.y;
-
-
         fogContext.fillRect(
 
             topLeft.x,
+
             topLeft.y,
 
-            width,
-            height
+            bottomRight.x -
+            topLeft.x,
+
+            bottomRight.y -
+            topLeft.y
 
         );
 
@@ -2696,163 +2649,318 @@ map.on(
     drawFog
 );
 
-map.on(
-    'resize',
-    resizeFog
-);
-
-window.addEventListener(
-    'resize',
-    resizeFog
-);
-/* =====================================================
-   PROTOTYPE AREA DEFINITIONS
-===================================================== */
-
-const gameAreas = [
-
-    {
-        name: 'Bradwell',
-
-        minLat: 52.575,
-        maxLat: 52.625,
-
-        minLng: 1.690,
-        maxLng: 1.755
-
-    },
-
-    {
-        name: 'Gorleston',
-
-        minLat: 52.545,
-        maxLat: 52.585,
-
-        minLng: 1.700,
-        maxLng: 1.780
-
-    },
-
-    {
-        name: 'Great Yarmouth',
-
-        minLat: 52.585,
-        maxLat: 52.650,
-
-        minLng: 1.700,
-        maxLng: 1.780
-
-    }
-
-];
-
 
 /* =====================================================
-   CURRENT AREA
+   LOCATION STATE
 ===================================================== */
 
 let currentAreaName =
-    'Great Yarmouth';
+    null;
+
+let currentAreaBoundary =
+    null;
+
+let locationRequestInProgress =
+    false;
+
+let lastLocationLookupLat =
+    null;
+
+let lastLocationLookupLng =
+    null;
 
 
 /* =====================================================
-   AREA CHECK
+   DISTANCE
 ===================================================== */
 
-function isInsideArea(
-    lat,
-    lng,
-    area
+function distanceMetres(
+
+    lat1,
+    lng1,
+
+    lat2,
+    lng2
+
 ) {
+
+    const R =
+        6371000;
+
+
+    const dLat =
+        (
+            lat2 -
+            lat1
+        )
+        *
+        Math.PI /
+        180;
+
+
+    const dLng =
+        (
+            lng2 -
+            lng1
+        )
+        *
+        Math.PI /
+        180;
+
+
+    const a =
+
+        Math.sin(
+            dLat / 2
+        ) ** 2
+
+        +
+
+        Math.cos(
+            lat1 *
+            Math.PI /
+            180
+        )
+
+        *
+
+        Math.cos(
+            lat2 *
+            Math.PI /
+            180
+        )
+
+        *
+
+        Math.sin(
+            dLng / 2
+        ) ** 2;
+
 
     return (
 
-        lat >= area.minLat &&
-        lat <= area.maxLat &&
+        R *
+        2 *
+        Math.atan2(
 
-        lng >= area.minLng &&
-        lng <= area.maxLng
+            Math.sqrt(a),
+
+            Math.sqrt(
+                1 - a
+            )
+
+        )
 
     );
 
 }
 
 
-function getPrototypeArea(
-    lat,
-    lng
+/* =====================================================
+   GEOJSON POINT TEST
+===================================================== */
+
+function pointInPolygon(
+    point,
+    polygon
 ) {
 
+    let inside =
+        false;
+
+
     for (
-        const area
-        of gameAreas
+
+        let i = 0,
+        j = polygon.length - 1;
+
+        i < polygon.length;
+
+        j = i++
+
     ) {
 
-        if (
-            isInsideArea(
-                lat,
-                lng,
-                area
+        const xi =
+            polygon[i][0];
+
+        const yi =
+            polygon[i][1];
+
+
+        const xj =
+            polygon[j][0];
+
+        const yj =
+            polygon[j][1];
+
+
+        const intersect =
+
+            (
+                yi >
+                point[1]
             )
+
+            !==
+
+            (
+                yj >
+                point[1]
+            )
+
+            &&
+
+            (
+
+                point[0] <
+
+                (
+
+                    (
+                        xj - xi
+                    )
+
+                    *
+
+                    (
+                        point[1] - yi
+                    )
+
+                    /
+
+                    (
+                        yj - yi
+                    )
+
+                )
+
+                +
+
+                xi
+
+            );
+
+
+        if (
+            intersect
         ) {
 
-            return area.name;
+            inside =
+                !inside;
 
         }
 
     }
 
 
-    return null;
+    return inside;
 
 }
 
 
 /* =====================================================
-   AREA PERCENTAGE
+   GEOJSON TEST
 ===================================================== */
 
-const areaSizes = {
+function pointInsideGeoJSON(
 
-    'Bradwell':
-        4200000,
+    lat,
+    lng,
+    geojson
 
-    'Gorleston':
-        5200000,
-
-    'Great Yarmouth':
-        9500000
-
-};
-
-
-/* =====================================================
-   CELL CENTRE
-===================================================== */
-
-function getCellCentreLatLng(
-    key
 ) {
 
-    const parts =
-        key.split('_');
+    if (
+        !geojson
+    ) {
+
+        return false;
+
+    }
 
 
-    const cellX =
-        parseInt(
-            parts[0]
-        );
+    const point = [
 
+        lng,
+        lat
 
-    const cellY =
-        parseInt(
-            parts[1]
-        );
+    ];
 
 
     if (
-        !isFinite(cellX) ||
-        !isFinite(cellY)
+        geojson.type ===
+        'Polygon'
+    ) {
+
+        return pointInPolygon(
+
+            point,
+
+            geojson.coordinates[0]
+
+        );
+
+    }
+
+
+    if (
+        geojson.type ===
+        'MultiPolygon'
+    ) {
+
+        for (
+            const polygon
+            of geojson.coordinates
+        ) {
+
+            if (
+                pointInPolygon(
+
+                    point,
+
+                    polygon[0]
+
+                )
+            ) {
+
+                return true;
+
+            }
+
+        }
+
+    }
+
+
+    if (
+        geojson.geometry
+    ) {
+
+        return pointInsideGeoJSON(
+
+            lat,
+            lng,
+
+            geojson.geometry
+
+        );
+
+    }
+
+
+    return false;
+
+}
+/* =====================================================
+   GEOJSON BOUNDS
+===================================================== */
+
+function getGeoJSONBounds(
+    geojson
+) {
+
+    if (
+        !geojson
     ) {
 
         return null;
@@ -2860,217 +2968,116 @@ function getCellCentreLatLng(
     }
 
 
-    return metresToLatLng(
-
-        (
-            cellX +
-            0.5
-        ) *
-        gridSize,
-
-        (
-            cellY +
-            0.5
-        ) *
-        gridSize
-
-    );
-
-}
-
-
-/* =====================================================
-   COUNT CELLS IN AREA
-===================================================== */
-
-function getExploredCellsInArea(
-    areaName
-) {
-
-    const area =
-        gameAreas.find(
-
-            function(item) {
-
-                return item.name ===
-                    areaName;
-
-            }
-
-        );
-
-
-    if (!area) {
-
-        return 0;
-
-    }
-
-
-    let count = 0;
-
-
-    for (
-        const key
-        of exploredGridCells
-    ) {
-
-        const centre =
-            getCellCentreLatLng(
-                key
-            );
-
-
-        if (!centre) {
-
-            continue;
-
-        }
-
-
-        if (
-            isInsideArea(
-
-                centre.lat,
-
-                centre.lng,
-
-                area
-
-            )
-        ) {
-
-            count++;
-
-        }
-
-    }
-
-
-    return count;
-
-}
-
-
-/* =====================================================
-   CALCULATE AREA PERCENTAGE
-===================================================== */
-
-function calculateAreaPercentage() {
-
-    const area =
-        gameAreas.find(
-
-            function(item) {
-
-                return item.name ===
-                    currentAreaName;
-
-            }
-
-        );
-
-
-    if (!area) {
-
-        return 0;
-
-    }
-
-
-    const exploredCells =
-        getExploredCellsInArea(
-            currentAreaName
-        );
-
-
-    const exploredArea =
-        exploredCells *
-        gridSize *
-        gridSize;
-
-
-    const totalArea =
-        areaSizes[
-            currentAreaName
-        ] || 1;
-
-
-    return Math.min(
-
-        100,
-
-        (
-            exploredArea /
-            totalArea
-        ) * 100
-
-    );
-
-}
-
-
-/* =====================================================
-   UPDATE LOCATION DISPLAY
-===================================================== */
-
-function updateCurrentLocation(
-    lat,
-    lng
-) {
-
-    const prototypeArea =
-        getPrototypeArea(
-            lat,
-            lng
-        );
+    const geometry =
+        geojson.geometry ||
+        geojson;
 
 
     if (
-        prototypeArea
+        !geometry.coordinates
     ) {
 
-        if (
-            prototypeArea !==
-            currentAreaName
-        ) {
-
-            currentAreaName =
-                prototypeArea;
-
-
-            document.getElementById(
-                'status'
-            ).textContent =
-
-                '📍 ENTERED ' +
-                prototypeArea.toUpperCase();
-
-        }
-
-
-        document.getElementById(
-            'currentLocation'
-        ).textContent =
-            prototypeArea;
-
-
-        updateExplorationDisplay();
-
-        return;
+        return null;
 
     }
 
 
-    /*
-       If outside our prototype zones,
-       use Nominatim to identify the place.
-    */
+    let minLat =
+        Infinity;
 
-    reverseGeocodeLocation(
-        lat,
-        lng
+    let maxLat =
+        -Infinity;
+
+    let minLng =
+        Infinity;
+
+    let maxLng =
+        -Infinity;
+
+
+    function inspect(
+        coordinates
+    ) {
+
+        if (
+            typeof coordinates[0] ===
+            'number'
+        ) {
+
+            const lng =
+                coordinates[0];
+
+            const lat =
+                coordinates[1];
+
+
+            minLng =
+                Math.min(
+                    minLng,
+                    lng
+                );
+
+            maxLng =
+                Math.max(
+                    maxLng,
+                    lng
+                );
+
+            minLat =
+                Math.min(
+                    minLat,
+                    lat
+                );
+
+            maxLat =
+                Math.max(
+                    maxLat,
+                    lat
+                );
+
+
+            return;
+
+        }
+
+
+        for (
+            const item
+            of coordinates
+        ) {
+
+            inspect(item);
+
+        }
+
+    }
+
+
+    inspect(
+        geometry.coordinates
     );
+
+
+    if (
+        !isFinite(minLat) ||
+        !isFinite(maxLat) ||
+        !isFinite(minLng) ||
+        !isFinite(maxLng)
+    ) {
+
+        return null;
+
+    }
+
+
+    return {
+
+        minLat,
+        maxLat,
+        minLng,
+        maxLng
+
+    };
 
 }
 
@@ -3079,50 +3086,52 @@ function updateCurrentLocation(
    REVERSE GEOCODING
 ===================================================== */
 
-let reverseGeocodeRunning =
-    false;
-
-
-let lastReverseGeocodeTime =
-    0;
-
-
-async function reverseGeocodeLocation(
+async function updateCurrentLocation(
     lat,
     lng
 ) {
 
-    const now =
-        Date.now();
+    /*
+       Prevent constant requests
+       to Nominatim.
 
+       Only look up again after
+       moving roughly 100 metres.
+    */
 
     if (
-        reverseGeocodeRunning
+        lastLocationLookupLat !== null &&
+        lastLocationLookupLng !== null
     ) {
 
-        return;
+        const lookupDistance =
+            distanceMetres(
+
+                lastLocationLookupLat,
+                lastLocationLookupLng,
+
+                lat,
+                lng
+
+            );
+
+
+        if (
+            lookupDistance < 100
+        ) {
+
+            return;
+
+        }
 
     }
 
 
-    if (
-        now -
-        lastReverseGeocodeTime
-        <
-        10000
-    ) {
+    lastLocationLookupLat =
+        lat;
 
-        return;
-
-    }
-
-
-    reverseGeocodeRunning =
-        true;
-
-
-    lastReverseGeocodeTime =
-        now;
+    lastLocationLookupLng =
+        lng;
 
 
     try {
@@ -3173,7 +3182,12 @@ async function reverseGeocodeLocation(
             data.address || {};
 
 
-        const name =
+        /*
+           Choose the most useful
+           human-readable location.
+        */
+
+        const newArea =
 
             address.suburb ||
 
@@ -3190,14 +3204,48 @@ async function reverseGeocodeLocation(
             'Unknown';
 
 
-        currentAreaName =
-            name;
+        if (
+            newArea !==
+            currentAreaName
+        ) {
+
+            currentAreaName =
+                newArea;
 
 
-        document.getElementById(
-            'currentLocation'
-        ).textContent =
-            name;
+            currentAreaBoundary =
+                null;
+
+
+            document.getElementById(
+                'currentLocation'
+            ).textContent =
+                currentAreaName;
+
+
+            document.getElementById(
+                'status'
+            ).textContent =
+
+                '📍 ' +
+                currentAreaName.toUpperCase();
+
+
+            /*
+               Load the actual boundary.
+            */
+
+            loadAreaBoundary(
+
+                currentAreaName,
+
+                lat,
+
+                lng
+
+            );
+
+        }
 
 
         updateExplorationDisplay();
@@ -3207,7 +3255,212 @@ async function reverseGeocodeLocation(
     catch (error) {
 
         console.error(
-            'Location lookup error:',
+            'Place lookup error:',
+            error
+        );
+
+
+        /*
+           Don't hide the last
+           successful location.
+        */
+
+        if (
+            !currentAreaName
+        ) {
+
+            document.getElementById(
+                'currentLocation'
+            ).textContent =
+                'LOCATION FOUND';
+
+        }
+
+    }
+
+}
+
+
+/* =====================================================
+   LOAD AREA BOUNDARY
+===================================================== */
+
+async function loadAreaBoundary(
+
+    areaName,
+    lat,
+    lng
+
+) {
+
+    if (
+        locationRequestInProgress
+    ) {
+
+        return;
+
+    }
+
+
+    locationRequestInProgress =
+        true;
+
+
+    try {
+
+        /*
+           First attempt:
+           search the exact area.
+        */
+
+        const response =
+            await fetch(
+
+                'https://nominatim.openstreetmap.org/search?' +
+
+                new URLSearchParams({
+
+                    q:
+                        areaName +
+                        ', Norfolk, UK',
+
+                    format:
+                        'json',
+
+                    polygon_geojson:
+                        1,
+
+                    addressdetails:
+                        1,
+
+                    limit:
+                        5
+
+                })
+
+            );
+
+
+        if (
+            !response.ok
+        ) {
+
+            throw new Error(
+                'Boundary lookup failed'
+            );
+
+        }
+
+
+        const results =
+            await response.json();
+
+
+        if (
+            results.length === 0
+        ) {
+
+            console.warn(
+                'No boundary found:',
+                areaName
+            );
+
+            return;
+
+        }
+
+
+        /*
+           Choose the result closest
+           to the player's position.
+        */
+
+        let bestResult =
+            null;
+
+        let bestDistance =
+            Infinity;
+
+
+        for (
+            const result
+            of results
+        ) {
+
+            if (
+                !result.geojson
+            ) {
+
+                continue;
+
+            }
+
+
+            const resultLat =
+                parseFloat(
+                    result.lat
+                );
+
+
+            const resultLng =
+                parseFloat(
+                    result.lon
+                );
+
+
+            const d =
+                distanceMetres(
+
+                    lat,
+                    lng,
+
+                    resultLat,
+                    resultLng
+
+                );
+
+
+            if (
+                d <
+                bestDistance
+            ) {
+
+                bestDistance =
+                    d;
+
+                bestResult =
+                    result;
+
+            }
+
+        }
+
+
+        if (
+            bestResult &&
+            bestResult.geojson
+        ) {
+
+            currentAreaBoundary =
+                bestResult.geojson;
+
+
+            console.log(
+                '🗺️ BOUNDARY LOADED:',
+                areaName
+            );
+
+
+            updateExplorationDisplay();
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            'Boundary error:',
             error
         );
 
@@ -3215,7 +3468,7 @@ async function reverseGeocodeLocation(
 
     finally {
 
-        reverseGeocodeRunning =
+        locationRequestInProgress =
             false;
 
     }
@@ -3224,30 +3477,276 @@ async function reverseGeocodeLocation(
 
 
 /* =====================================================
-   BOTTOM HUD
+   AREA PERCENTAGE
+===================================================== */
+
+function calculateAreaPercentage() {
+
+    /*
+       If the boundary hasn't loaded yet,
+       keep the display at 0 rather than
+       showing a fake percentage.
+    */
+
+    if (
+        !currentAreaBoundary
+    ) {
+
+        return 0;
+
+    }
+
+
+    let exploredInside =
+        0;
+
+
+    for (
+        const key
+        of exploredGridCells
+    ) {
+
+        const centre =
+            getCellCentreLatLng(
+                key
+            );
+
+
+        if (
+            !centre
+        ) {
+
+            continue;
+
+        }
+
+
+        if (
+            pointInsideGeoJSON(
+
+                centre.lat,
+                centre.lng,
+
+                currentAreaBoundary
+
+            )
+        ) {
+
+            exploredInside++;
+
+        }
+
+    }
+
+
+    /*
+       Work out the approximate number
+       of 5m x 5m cells in the area.
+    */
+
+    const bounds =
+        getGeoJSONBounds(
+            currentAreaBoundary
+        );
+
+
+    if (
+        !bounds
+    ) {
+
+        return 0;
+
+    }
+
+
+    const southWest =
+        latLngToMetres(
+
+            bounds.minLat,
+            bounds.minLng
+
+        );
+
+
+    const northEast =
+        latLngToMetres(
+
+            bounds.maxLat,
+            bounds.maxLng
+
+        );
+
+
+    const width =
+        Math.abs(
+
+            northEast.x -
+            southWest.x
+
+        );
+
+
+    const height =
+        Math.abs(
+
+            northEast.y -
+            southWest.y
+
+        );
+
+
+    /*
+       We use bounding-box area here.
+
+       It keeps the phone fast and
+       avoids checking potentially
+       millions of cells.
+    */
+
+    const approximateArea =
+        width *
+        height;
+
+
+    const totalCells =
+        approximateArea /
+        (
+            gridSize *
+            gridSize
+        );
+
+
+    if (
+        totalCells <= 0
+    ) {
+
+        return 0;
+
+    }
+
+
+    return Math.min(
+
+        100,
+
+        (
+            exploredInside /
+            totalCells
+        )
+        *
+        100
+
+    );
+
+}
+
+
+/* =====================================================
+   CELL CENTRE
+===================================================== */
+
+function getCellCentreLatLng(
+    key
+) {
+
+    const parts =
+        key.split('_');
+
+
+    const cellX =
+        parseInt(
+            parts[0]
+        );
+
+
+    const cellY =
+        parseInt(
+            parts[1]
+        );
+
+
+    if (
+        !isFinite(cellX) ||
+        !isFinite(cellY)
+    ) {
+
+        return null;
+
+    }
+
+
+    return metresToLatLng(
+
+        (
+            cellX +
+            0.5
+        )
+        *
+        gridSize,
+
+        (
+            cellY +
+            0.5
+        )
+        *
+        gridSize
+
+    );
+
+}
+
+
+/* =====================================================
+   LOCATION HUD
 ===================================================== */
 
 function updateLocationHUD() {
 
-    document.getElementById(
-        'currentLocation'
-    ).textContent =
-        currentAreaName;
+    const locationElement =
+        document.getElementById(
+            'currentLocation'
+        );
 
+
+    const percentageElement =
+        document.getElementById(
+            'explorationPercentage'
+        );
+
+
+    /*
+       LOCATION
+    */
+
+    if (
+        currentAreaName
+    ) {
+
+        locationElement.textContent =
+            currentAreaName;
+
+    }
+
+
+    /*
+       PERCENTAGE
+    */
 
     const percentage =
         calculateAreaPercentage();
 
 
-    document.getElementById(
-        'explorationPercentage'
-    ).textContent =
+    percentageElement.textContent =
 
         percentage.toFixed(2) +
         '%';
 
 }
 
+
+/* =====================================================
+   EXPLORATION DISPLAY
+===================================================== */
 
 function updateExplorationDisplay() {
 
@@ -3257,7 +3756,7 @@ function updateExplorationDisplay() {
 
 
 /* =====================================================
-   GPS
+   GPS START
 ===================================================== */
 
 map.locate({
@@ -3306,32 +3805,36 @@ map.on(
             Date.now();
 
 
-        /*
-           LOCATION NAME IS UPDATED
-           IMMEDIATELY FROM GPS.
-        */
+        console.log(
 
-        updateCurrentLocation(
+            'RAW GPS:',
             gpsLat,
-            gpsLng
+            gpsLng,
+            'accuracy:',
+            accuracy,
+            'speed:',
+            gpsSpeed
+
         );
 
 
         /*
-           Move marker immediately.
+           Update location immediately.
+
+           This happens independently
+           of walking validation.
         */
 
-        if (marker) {
+        updateCurrentLocation(
 
-            marker.setLatLng(
-                e.latlng
-            );
+            gpsLat,
+            gpsLng
 
-        }
+        );
 
 
         /*
-           Ignore inaccurate GPS.
+           Weak GPS
         */
 
         if (
@@ -3349,7 +3852,6 @@ map.on(
                 ) +
                 'm';
 
-            drawFog();
 
             return;
 
@@ -3388,11 +3890,19 @@ map.on(
                 false;
 
 
+            vehicleSamples =
+                0;
+
+
             document.getElementById(
                 'status'
             ).textContent =
 
-                'UNLOCKED — GPS STABILISING';
+                'UNLOCKED — GPS STABILISING — ±' +
+                Math.round(
+                    accuracy
+                ) +
+                'm';
 
 
             if (
@@ -3407,11 +3917,10 @@ map.on(
 
                     e.latlng,
 
-                    17,
+                    16,
 
                     {
-                        animate:
-                            false
+                        animate: false
                     }
 
                 );
@@ -3449,11 +3958,7 @@ map.on(
                 ).addTo(map);
 
 
-            resizeFog();
-
             drawFog();
-
-            updateLocationHUD();
 
             return;
 
@@ -3525,8 +4030,25 @@ map.on(
         }
 
 
+        console.log(
+
+            'MOVEMENT:',
+            movement.toFixed(1),
+            'm',
+
+            'TIME:',
+            elapsedSeconds.toFixed(1),
+            's',
+
+            'SPEED:',
+            effectiveSpeed.toFixed(2),
+            'm/s'
+
+        );
+
+
         /* =================================================
-           VEHICLE SPEED
+           VEHICLE GPS SPEED
         ================================================= */
 
         if (
@@ -3549,6 +4071,9 @@ map.on(
                 true;
 
 
+            vehicleSamples++;
+
+
             document.getElementById(
                 'status'
             ).textContent =
@@ -3568,7 +4093,16 @@ map.on(
                 gpsTimestamp;
 
 
-            drawFog();
+            if (
+                marker
+            ) {
+
+                marker.setLatLng(
+                    e.latlng
+                );
+
+            }
+
 
             return;
 
@@ -3586,6 +4120,9 @@ map.on(
 
             vehicleDetected =
                 true;
+
+
+            vehicleSamples++;
 
 
             document.getElementById(
@@ -3607,7 +4144,16 @@ map.on(
                 gpsTimestamp;
 
 
-            drawFog();
+            if (
+                marker
+            ) {
+
+                marker.setLatLng(
+                    e.latlng
+                );
+
+            }
+
 
             return;
 
@@ -3653,15 +4199,22 @@ map.on(
                 gpsTimestamp;
 
 
+            if (
+                marker
+            ) {
+
+                marker.setLatLng(
+                    e.latlng
+                );
+
+            }
+
+
             document.getElementById(
                 'status'
             ).textContent =
                 'UNLOCKED — GPS STABILISING';
 
-
-            updateLocationHUD();
-
-            drawFog();
 
             return;
 
@@ -3677,9 +4230,16 @@ map.on(
             minimumMovement
         ) {
 
-            updateLocationHUD();
+            if (
+                marker
+            ) {
 
-            drawFog();
+                marker.setLatLng(
+                    e.latlng
+                );
+
+            }
+
 
             return;
 
@@ -3695,16 +4255,31 @@ map.on(
             maxGPSJump
         ) {
 
+            console.log(
+
+                'GPS JUMP REJECTED:',
+                movement.toFixed(1),
+                'metres'
+
+            );
+
+
             document.getElementById(
                 'status'
             ).textContent =
-
                 'GPS SIGNAL — MOVEMENT CHECKING';
 
 
-            updateLocationHUD();
+            if (
+                marker
+            ) {
 
-            drawFog();
+                marker.setLatLng(
+                    e.latlng
+                );
+
+            }
+
 
             return;
 
@@ -3767,6 +4342,17 @@ map.on(
             gpsTimestamp;
 
 
+        if (
+            marker
+        ) {
+
+            marker.setLatLng(
+                e.latlng
+            );
+
+        }
+
+
         document.getElementById(
             'status'
         ).textContent =
@@ -3789,115 +4375,13 @@ map.on(
         );
 
 
-        updateCurrentLocation(
-
-            gpsLat,
-            gpsLng
-
-        );
-
-
-        updateLocationHUD();
+        updateExplorationDisplay();
 
         drawFog();
 
     }
 
 );
-
-
-/* =====================================================
-   DISTANCE
-===================================================== */
-
-function distanceMetres(
-
-    lat1,
-    lng1,
-
-    lat2,
-    lng2
-
-) {
-
-    const R =
-        6371000;
-
-
-    const dLat =
-
-        (
-            lat2 -
-            lat1
-        )
-        *
-        Math.PI /
-        180;
-
-
-    const dLng =
-
-        (
-            lng2 -
-            lng1
-        )
-        *
-        Math.PI /
-        180;
-
-
-    const a =
-
-        Math.sin(
-            dLat / 2
-        ) ** 2
-
-        +
-
-        Math.cos(
-
-            lat1 *
-            Math.PI /
-            180
-
-        )
-
-        *
-
-        Math.cos(
-
-            lat2 *
-            Math.PI /
-            180
-
-        )
-
-        *
-
-        Math.sin(
-            dLng / 2
-        ) ** 2;
-
-
-    return (
-
-        R *
-
-        2 *
-
-        Math.atan2(
-
-            Math.sqrt(a),
-
-            Math.sqrt(
-                1 - a
-            )
-
-        )
-
-    );
-
-}
 
 
 /* =====================================================
@@ -3926,13 +4410,12 @@ map.on(
     }
 
 );
-
-
 /* =====================================================
-   DISCOVERIES
+   DISCOVERY SYSTEM
 ===================================================== */
 
 let discoveries = [];
+
 
 try {
 
@@ -3959,24 +4442,35 @@ try {
 }
 catch (error) {
 
+    console.error(
+        'Could not load discoveries:',
+        error
+    );
+
     discoveries = [];
 
 }
 
 
+/* =====================================================
+   DISCOVERY XP
+===================================================== */
+
 function getDiscoveryXP() {
 
     return discoveries.reduce(
 
-        function(
-            total,
-            discovery
-        ) {
+        function(total, discovery) {
 
-            return total +
+            return (
+
+                total +
+
                 Number(
                     discovery.xp || 0
-                );
+                )
+
+            );
 
         },
 
@@ -3986,6 +4480,10 @@ function getDiscoveryXP() {
 
 }
 
+
+/* =====================================================
+   SAVE DISCOVERIES
+===================================================== */
 
 function saveDiscoveries() {
 
@@ -3998,6 +4496,53 @@ function saveDiscoveries() {
         )
 
     );
+
+}
+
+
+/* =====================================================
+   DISCOVERY POPUP
+===================================================== */
+
+function showDiscoveryPopup(
+    discovery
+) {
+
+    document.getElementById(
+        'popupDiscoveryName'
+    ).textContent =
+        discovery.name;
+
+
+    document.getElementById(
+        'popupDiscoveryDescription'
+    ).textContent =
+        discovery.description;
+
+
+    document.getElementById(
+        'popupDiscoveryXP'
+    ).textContent =
+
+        '⭐ +' +
+        discovery.xp +
+        ' XP';
+
+
+    document.getElementById(
+        'discoveryPopup'
+    ).style.display =
+        'flex';
+
+}
+
+
+function closeDiscoveryPopup() {
+
+    document.getElementById(
+        'discoveryPopup'
+    ).style.display =
+        'none';
 
 }
 
@@ -4016,27 +4561,31 @@ function addDiscovery(
 
 ) {
 
-    const exists =
+    const alreadyDiscovered =
         discoveries.some(
 
             function(discovery) {
 
-                return discovery.id ===
-                    id;
+                return (
+                    discovery.id ===
+                    id
+                );
 
             }
 
         );
 
 
-    if (exists) {
+    if (
+        alreadyDiscovered
+    ) {
 
         return false;
 
     }
 
 
-    const discovery = {
+    const newDiscovery = {
 
         id:
             id,
@@ -4060,20 +4609,23 @@ function addDiscovery(
 
 
     discoveries.push(
-        discovery
+        newDiscovery
     );
 
 
     saveDiscoveries();
 
+
     awardXP(
         xp
     );
 
+
     updateDiscoveriesPanel();
 
+
     showDiscoveryPopup(
-        discovery
+        newDiscovery
     );
 
 
@@ -4088,10 +4640,14 @@ function addDiscovery(
 
 function createTestDiscovery() {
 
-    const added =
+    const testID =
+        'test-discovery-001';
+
+
+    const wasAdded =
         addDiscovery(
 
-            'test-discovery-001',
+            testID,
 
             'The First Discovery',
 
@@ -4104,7 +4660,9 @@ function createTestDiscovery() {
         );
 
 
-    if (!added) {
+    if (
+        !wasAdded
+    ) {
 
         document.getElementById(
             'status'
@@ -4126,16 +4684,24 @@ function createTestDiscovery() {
 
 function updateDiscoveriesPanel() {
 
+    const count =
+        discoveries.length;
+
+
+    const xp =
+        getDiscoveryXP();
+
+
     document.getElementById(
         'discoveryCount'
     ).textContent =
-        discoveries.length;
+        count;
 
 
     document.getElementById(
         'discoveryXP'
     ).textContent =
-        getDiscoveryXP();
+        xp;
 
 
     const list =
@@ -4228,54 +4794,7 @@ function updateDiscoveriesPanel() {
 
 
 /* =====================================================
-   DISCOVERY POPUP
-===================================================== */
-
-function showDiscoveryPopup(
-    discovery
-) {
-
-    document.getElementById(
-        'popupDiscoveryName'
-    ).textContent =
-        discovery.name;
-
-
-    document.getElementById(
-        'popupDiscoveryDescription'
-    ).textContent =
-        discovery.description;
-
-
-    document.getElementById(
-        'popupDiscoveryXP'
-    ).textContent =
-
-        '⭐ +' +
-        discovery.xp +
-        ' XP';
-
-
-    document.getElementById(
-        'discoveryPopup'
-    ).style.display =
-        'flex';
-
-}
-
-
-function closeDiscoveryPopup() {
-
-    document.getElementById(
-        'discoveryPopup'
-    ).style.display =
-        'none';
-
-}
-
-
-/* =====================================================
-   PROGRESS PANEL
+   PROGRESS
 ===================================================== */
 
 function formatLandArea(
@@ -4293,6 +4812,7 @@ function formatLandArea(
             1000000
 
         ).toFixed(2) +
+
         ' km²';
 
     }
@@ -4300,10 +4820,10 @@ function formatLandArea(
 
     return (
 
-        squareMetres
-            .toLocaleString()
+        squareMetres.toLocaleString()
 
     ) +
+
     ' m²';
 
 }
@@ -4353,13 +4873,24 @@ function updateProgressPanel() {
 
     const landUnlocked =
         exploredGridCells.length *
-        25;
+        gridSize *
+        gridSize;
+
+
+    const discoveryCount =
+        discoveries.length;
+
+
+    const discoveryXP =
+        getDiscoveryXP();
 
 
     document.getElementById(
         'progressLevelNumber'
     ).textContent =
-        'LEVEL ' + level;
+
+        'LEVEL ' +
+        level;
 
 
     document.getElementById(
@@ -4381,7 +4912,9 @@ function updateProgressPanel() {
     document.getElementById(
         'progressBarFill'
     ).style.width =
-        progressPercent + '%';
+
+        progressPercent +
+        '%';
 
 
     if (
@@ -4391,19 +4924,20 @@ function updateProgressPanel() {
         document.getElementById(
             'progressXPNeeded'
         ).textContent =
+
             'LEVEL 100 — GLOBAL EXPLORER';
 
 
         document.getElementById(
             'nextLevelValue'
         ).textContent =
+
             '🏆 MAX LEVEL';
 
     }
-
     else {
 
-        const remaining =
+        const remainingXP =
             Math.max(
 
                 0,
@@ -4418,9 +4952,13 @@ function updateProgressPanel() {
             'progressXPNeeded'
         ).textContent =
 
-            remaining.toLocaleString() +
+            remainingXP.toLocaleString() +
+
             ' XP to Level ' +
-            (level + 1);
+
+            (
+                level + 1
+            );
 
 
         document.getElementById(
@@ -4428,7 +4966,9 @@ function updateProgressPanel() {
         ).textContent =
 
             'LEVEL ' +
-            (level + 1);
+            (
+                level + 1
+            );
 
     }
 
@@ -4436,6 +4976,7 @@ function updateProgressPanel() {
     document.getElementById(
         'progressLand'
     ).textContent =
+
         formatLandArea(
             landUnlocked
         );
@@ -4444,6 +4985,7 @@ function updateProgressPanel() {
     document.getElementById(
         'progressCells'
     ).textContent =
+
         exploredGridCells.length
             .toLocaleString();
 
@@ -4451,22 +4993,22 @@ function updateProgressPanel() {
     document.getElementById(
         'progressDiscoveries'
     ).textContent =
-        discoveries.length;
+
+        discoveryCount;
 
 
     document.getElementById(
         'progressDiscoveryXP'
     ).textContent =
 
-        getDiscoveryXP()
-            .toLocaleString() +
+        discoveryXP.toLocaleString() +
         ' XP';
 
 }
 
 
 /* =====================================================
-   PANELS
+   PANEL CONTROLS
 ===================================================== */
 
 function showProgress() {
@@ -4572,7 +5114,7 @@ function closeSettings() {
 
 
 /* =====================================================
-   INITIALISE
+   REFRESH
 ===================================================== */
 
 function refreshGameInterface() {
@@ -4585,19 +5127,35 @@ function refreshGameInterface() {
 
     updateLocationHUD();
 
+    updateExplorationDisplay();
+
     drawFog();
 
 }
 
 
-updatePlayerHUD();
+/* =====================================================
+   KEEP HUD LIVE
+===================================================== */
 
-updateDiscoveriesPanel();
+setInterval(
 
-updateProgressPanel();
+    function() {
 
-updateLocationHUD();
+        updatePlayerHUD();
 
+        updateLocationHUD();
+
+    },
+
+    3000
+
+);
+
+
+/* =====================================================
+   MAP READY
+===================================================== */
 
 setTimeout(
 
@@ -4609,6 +5167,12 @@ setTimeout(
 
         drawFog();
 
+        updatePlayerHUD();
+
+        updateDiscoveriesPanel();
+
+        updateProgressPanel();
+
         updateLocationHUD();
 
     },
@@ -4619,22 +5183,50 @@ setTimeout(
 
 
 /* =====================================================
-   KEEP INTERFACE LIVE
+   INITIAL UI
 ===================================================== */
 
-setInterval(
+updatePlayerHUD();
 
-    function() {
+updateDiscoveriesPanel();
 
-        updatePlayerHUD();
+updateProgressPanel();
 
-        updateLocationHUD();
+updateLocationHUD();
 
-        drawFog();
+updateExplorationDisplay();
+
+drawFog();
+
+
+/* =====================================================
+   TOUCH
+===================================================== */
+
+document.addEventListener(
+
+    'touchmove',
+
+    function(e) {
+
+        if (
+            e.target.closest(
+                '.gamePanel'
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        e.preventDefault();
 
     },
 
-    3000
+    {
+        passive: false
+    }
 
 );
 
@@ -4660,6 +5252,11 @@ console.log(
 console.log(
     'Player level:',
     getPlayerLevel()
+);
+
+console.log(
+    'Discoveries:',
+    discoveries.length
 );
 
 console.log(
