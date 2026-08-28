@@ -152,6 +152,226 @@ body {
 
 }
 
+
+/* ==========================================
+   DISCOVERIES PANEL
+========================================== */
+
+#discoveriesPanel {
+
+    display: none;
+
+    position: fixed;
+
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    bottom: 25px;
+
+    z-index: 5000;
+
+    background:
+        rgba(10,10,10,0.97);
+
+    color: white;
+
+    border-radius: 18px;
+
+    padding: 20px;
+
+    font-family: Arial, sans-serif;
+
+    box-shadow:
+        0 8px 30px rgba(0,0,0,0.6);
+
+    overflow-y: auto;
+
+    box-sizing: border-box;
+
+}
+
+.discoveryHeader {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 20px;
+
+}
+
+.discoveryHeader h2 {
+
+    margin: 0;
+
+    font-size: 22px;
+
+    letter-spacing: 1px;
+
+}
+
+.closePanel {
+
+    border: none;
+
+    background:
+        rgba(255,255,255,0.12);
+
+    color: white;
+
+    width: 38px;
+    height: 38px;
+
+    border-radius: 50%;
+
+    font-size: 18px;
+
+}
+
+.discoveryStats {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 10px;
+
+    margin-bottom: 20px;
+
+}
+
+.discoveryStat {
+
+    background:
+        rgba(255,255,255,0.08);
+
+    border-radius: 14px;
+
+    padding: 15px;
+
+    text-align: center;
+
+}
+
+.discoveryStatValue {
+
+    font-size: 24px;
+
+    font-weight: bold;
+
+}
+
+.discoveryStatLabel {
+
+    margin-top: 5px;
+
+    font-size: 12px;
+
+    opacity: 0.7;
+
+}
+
+.discoveryItem {
+
+    background:
+        rgba(255,255,255,0.08);
+
+    border-radius: 14px;
+
+    padding: 15px;
+
+    margin-bottom: 10px;
+
+}
+
+.discoveryName {
+
+    font-size: 17px;
+
+    font-weight: bold;
+
+}
+
+.discoveryCategory {
+
+    font-size: 11px;
+
+    opacity: 0.5;
+
+    margin-top: 4px;
+
+    text-transform: uppercase;
+
+    letter-spacing: 1px;
+
+}
+
+.discoveryDescription {
+
+    font-size: 13px;
+
+    opacity: 0.75;
+
+    margin-top: 7px;
+
+    line-height: 1.4;
+
+}
+
+.discoveryXP {
+
+    margin-top: 8px;
+
+    font-size: 13px;
+
+    font-weight: bold;
+
+}
+
+.noDiscoveries {
+
+    text-align: center;
+
+    opacity: 0.6;
+
+    padding: 30px 10px;
+
+    line-height: 1.5;
+
+}
+
+.testDiscoveryButton {
+
+    width: 100%;
+
+    border: none;
+
+    background:
+        rgba(255,255,255,0.15);
+
+    color: white;
+
+    padding: 14px;
+
+    border-radius: 12px;
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+    margin-top: 15px;
+
+}
+
+.testDiscoveryButton:active {
+
+    transform: scale(0.98);
+
+}
+
 </style>
 
 </head>
@@ -202,6 +422,89 @@ body {
 
 
 <div id="map"></div>
+
+
+<!-- ==========================================
+     DISCOVERIES PANEL
+========================================== -->
+
+<div id="discoveriesPanel">
+
+    <div class="discoveryHeader">
+
+        <h2>
+            🔎 DISCOVERIES
+        </h2>
+
+        <button
+            class="closePanel"
+            onclick="closeDiscoveries()"
+        >
+            ✕
+        </button>
+
+    </div>
+
+
+    <div class="discoveryStats">
+
+        <div class="discoveryStat">
+
+            <div
+                class="discoveryStatValue"
+                id="discoveryCount"
+            >
+                0
+            </div>
+
+            <div class="discoveryStatLabel">
+                DISCOVERIES
+            </div>
+
+        </div>
+
+
+        <div class="discoveryStat">
+
+            <div
+                class="discoveryStatValue"
+                id="discoveryXP"
+            >
+                0
+            </div>
+
+            <div class="discoveryStatLabel">
+                DISCOVERY XP
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div id="discoveryList">
+
+        <div class="noDiscoveries">
+
+            🔎 No discoveries yet.
+
+            <br><br>
+
+            Keep exploring the world.
+
+        </div>
+
+    </div>
+
+
+    <button
+        class="testDiscoveryButton"
+        onclick="createTestDiscovery()"
+    >
+        🧪 TEST DISCOVERY
+    </button>
+
+</div>
 
 
 <div id="status">
@@ -2604,13 +2907,33 @@ map.on(
 
 
 /* =====================================================
-   MENU PLACEHOLDERS
+   GAME MENUS
 ===================================================== */
 
 function showMap() {
 
-    console.log(
-        'MAP'
+    document.getElementById(
+        'discoveriesPanel'
+    ).style.display = 'none';
+
+
+    document.getElementById(
+        'status'
+    ).style.display = 'block';
+
+
+    setTimeout(
+
+        function() {
+
+            map.invalidateSize();
+
+            drawFog();
+
+        },
+
+        50
+
     );
 
 }
@@ -2618,12 +2941,31 @@ function showMap() {
 
 function showDiscoveries() {
 
-    console.log(
-        'DISCOVERIES'
-    );
+    updateDiscoveriesPanel();
+
+
+    document.getElementById(
+        'discoveriesPanel'
+    ).style.display = 'block';
+
+
+    document.getElementById(
+        'status'
+    ).style.display = 'none';
 
 }
 
+
+function closeDiscoveries() {
+
+    showMap();
+
+}
+
+
+/* =====================================================
+   PROGRESS PLACEHOLDER
+===================================================== */
 
 function showProgress() {
 
@@ -2635,8 +2977,396 @@ function showProgress() {
 
 
 /* =====================================================
+   DISCOVERY SYSTEM
+===================================================== */
+
+/*
+   Discoveries are permanently stored.
+
+   Each discovery contains:
+
+   id
+   name
+   description
+   category
+   xp
+   discoveredAt
+*/
+
+let discoveries = [];
+
+
+try {
+
+    discoveries = JSON.parse(
+
+        localStorage.getItem(
+            'unlockedDiscoveries'
+        ) || '[]'
+
+    );
+
+
+    if (
+        !Array.isArray(discoveries)
+    ) {
+
+        discoveries = [];
+
+    }
+
+}
+catch (error) {
+
+    console.error(
+
+        'Could not load discoveries:',
+
+        error
+
+    );
+
+
+    discoveries = [];
+
+}
+
+
+/* =====================================================
+   DISCOVERY XP
+===================================================== */
+
+function getDiscoveryXP() {
+
+    return discoveries.reduce(
+
+        function(total, discovery) {
+
+            return total +
+                Number(
+                    discovery.xp || 0
+                );
+
+        },
+
+        0
+
+    );
+
+}
+
+
+/* =====================================================
+   SAVE DISCOVERIES
+===================================================== */
+
+function saveDiscoveries() {
+
+    localStorage.setItem(
+
+        'unlockedDiscoveries',
+
+        JSON.stringify(
+            discoveries
+        )
+
+    );
+
+}
+
+
+/* =====================================================
+   ADD DISCOVERY
+===================================================== */
+
+function addDiscovery(
+
+    id,
+    name,
+    description,
+    category,
+    xp
+
+) {
+
+    /*
+       A discovery can only ever
+       be discovered once.
+    */
+
+    const alreadyDiscovered =
+        discoveries.some(
+
+            function(discovery) {
+
+                return discovery.id === id;
+
+            }
+
+        );
+
+
+    if (
+        alreadyDiscovered
+    ) {
+
+        console.log(
+
+            'DISCOVERY ALREADY FOUND:',
+            name
+
+        );
+
+
+        return false;
+
+    }
+
+
+    const newDiscovery = {
+
+        id:
+            id,
+
+        name:
+            name,
+
+        description:
+            description,
+
+        category:
+            category,
+
+        xp:
+            xp,
+
+        discoveredAt:
+            Date.now()
+
+    };
+
+
+    discoveries.push(
+        newDiscovery
+    );
+
+
+    saveDiscoveries();
+
+
+    /*
+       Discovery XP is added to
+       the player's total XP.
+    */
+
+    awardXP(
+        xp
+    );
+
+
+    updateDiscoveriesPanel();
+
+
+    document.getElementById(
+        'status'
+    ).textContent =
+
+        '🔎 DISCOVERY FOUND — +' +
+        xp +
+        ' XP';
+
+
+    console.log(
+
+        'NEW DISCOVERY:',
+        newDiscovery
+
+    );
+
+
+    return true;
+
+}
+
+
+/* =====================================================
+   TEST DISCOVERY
+===================================================== */
+
+function createTestDiscovery() {
+
+    const testID =
+        'test-discovery-001';
+
+
+    const wasAdded =
+        addDiscovery(
+
+            testID,
+
+            'The First Discovery',
+
+            'You found your first UNLOCKED discovery.',
+
+            'Test',
+
+            100
+
+        );
+
+
+    if (
+        wasAdded
+    ) {
+
+        alert(
+
+            '🔎 DISCOVERY FOUND!\n\n' +
+
+            'The First Discovery\n\n' +
+
+            '+100 XP'
+
+        );
+
+    }
+    else {
+
+        alert(
+
+            '🔎 Already discovered!'
+
+        );
+
+    }
+
+
+    updateDiscoveriesPanel();
+
+}
+
+
+/* =====================================================
+   UPDATE DISCOVERIES PANEL
+===================================================== */
+
+function updateDiscoveriesPanel() {
+
+    const count =
+        discoveries.length;
+
+
+    const xp =
+        getDiscoveryXP();
+
+
+    document.getElementById(
+        'discoveryCount'
+    ).textContent =
+        count;
+
+
+    document.getElementById(
+        'discoveryXP'
+    ).textContent =
+        xp;
+
+
+    const list =
+        document.getElementById(
+            'discoveryList'
+        );
+
+
+    if (
+        discoveries.length === 0
+    ) {
+
+        list.innerHTML =
+
+            `
+            <div class="noDiscoveries">
+
+                🔎 No discoveries yet.
+
+                <br><br>
+
+                Keep exploring the world.
+
+            </div>
+            `;
+
+        return;
+
+    }
+
+
+    list.innerHTML = '';
+
+
+    discoveries
+        .slice()
+        .reverse()
+        .forEach(
+
+            function(discovery) {
+
+                const item =
+                    document.createElement(
+                        'div'
+                    );
+
+
+                item.className =
+                    'discoveryItem';
+
+
+                item.innerHTML =
+
+                    `
+                    <div class="discoveryName">
+
+                        🔎 ${discovery.name}
+
+                    </div>
+
+                    <div class="discoveryCategory">
+
+                        ${discovery.category}
+
+                    </div>
+
+                    <div class="discoveryDescription">
+
+                        ${discovery.description}
+
+                    </div>
+
+                    <div class="discoveryXP">
+
+                        ⭐ +${discovery.xp} XP
+
+                    </div>
+                    `;
+
+
+                list.appendChild(
+                    item
+                );
+
+            }
+
+        );
+
+}
+
+
+/* =====================================================
    STARTUP
 ===================================================== */
+
+updateDiscoveriesPanel();
+
 
 setTimeout(
 
