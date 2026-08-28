@@ -3510,7 +3510,897 @@ function distanceMetres(
 
 }
 
+/* =====================================================
+   LIVE LOCATION + AREA PERCENTAGE
+===================================================== */
 
+let currentAreaName = null;
+let currentAreaBoundary = null;
+let locationRequestInProgress = false;
+
+
+/* -----------------------------------------------------
+   POINT IN POLYGON
+----------------------------------------------------- */
+
+function pointInPolygon(point, polygon) {
+
+    let inside = false;
+
+    for (
+        let i = 0,
+        j = polygon.length - 1;
+
+        i < polygon.length;
+
+        j = i++
+    ) {
+
+        const xi = polygon[i][0];
+        const yi = polygon[i][1];
+
+        const xj = polygon[j][0];
+        const yj = polygon[j][1];
+
+        const intersect =
+
+            (
+                yi > point[1]
+            )
+            !==
+            (
+                yj > point[1]
+            )
+
+            &&
+
+            (
+                point[0] <
+                (
+                    (xj - xi) *
+                    (point[1] - yi) /
+                    (yj - yi)
+                )
+                +
+                xi
+            );
+
+        if (intersect) {
+
+            inside = !inside;
+
+        }
+
+    }
+
+    return inside;
+
+}
+
+
+/* -----------------------------------------------------
+   CHECK GEOJSON POLYGON
+----------------------------------------------------- */
+
+function pointInsideGeoJSON(
+    lat,
+    lng,
+    geojson
+) {
+
+    const point = [
+        lng,
+        lat
+    ];
+
+    if (
+        !geojson ||
+        !geojson.geometry
+    ) {
+
+        return false;
+
+    }
+
+    const geometry =
+        geojson.geometry;
+
+
+    if (
+        geometry.type ===
+        'Polygon'
+    ) {
+
+        return pointInPolygon(
+            point,
+            geometry.coordinates[0]
+        );
+
+    }
+
+
+    if (
+        geometry.type ===
+        'MultiPolygon'
+    ) {
+
+        for (
+            const polygon
+            of geometry.coordinates
+        ) {
+
+            if (
+                pointInPolygon(
+                    point,
+                    polygon[0]
+                )
+            ) {
+
+                return true;
+
+            }
+
+        }
+
+    }
+
+    return false;
+
+}
+
+
+/* -----------------------------------------------------
+   GET AREA NAME FROM GPS
+----------------------------------------------------- */
+
+async function updateCurrentLocation(
+    lat,
+    lng
+) {
+
+    try {
+
+        const response =
+            await fetch(
+
+                'https://nominatim.openstreetmap.org/reverse?' +
+
+                new URLSearchParams({
+
+                    format:
+                        'json',
+
+                    lat:
+                        lat,
+
+                    lon:
+                        lng,
+
+                    zoom:
+                        14,
+
+                    addressdetails:
+                        1
+
+                })
+
+            );
+
+
+        if (
+            !response.ok
+        ) {
+
+            throw new Error(
+                'Location lookup failed'
+            );
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        const address =
+            data.address || {};
+
+
+        const newArea =
+
+            address.village ||
+
+            address.town ||
+
+            address.city ||
+
+            address.suburb ||
+
+            address.hamlet ||
+
+            'Unknown';
+
+
+        if (
+            newArea !==
+            currentAreaName
+        ) {
+
+            currentAreaName =
+                newArea;
+
+
+            currentAreaBoundary =
+                null;
+
+
+            document.getElementById(
+                'currentLocation'
+            ).textContent =
+                currentAreaName;
+
+
+            console.log(
+                '📍 AREA CHANGED:',
+                currentAreaName
+            );
+
+
+            await loadAreaBoundary(
+                currentAreaName,
+                lat,
+                lng
+            );
+
+        }
+
+
+        updateExplorationDisplay();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            'Place lookup error:',
+            error
+        );
+
+
+        document.getElementById(
+            'currentLocation'
+        ).textContent =
+            'LOCATION FOUND';
+
+    }
+
+}
+
+
+/* -----------------------------------------------------
+   LOAD BOUNDARY FOR CURRENT AREA
+----------------------------------------------------- */
+
+async function loadAreaBoundary(
+    areaName,
+    lat,
+    lng
+) {
+
+    if (
+        locationRequestInProgress
+    ) {
+
+        return;
+
+    }
+
+
+    locationRequestInProgress =
+        true;
+
+
+    try {
+
+        const response =
+            await fetch(
+
+                'https://nominatim.openstreetmap.org/search?' +
+
+                new URLSearchParams({
+
+                    q:
+                        areaName +
+                        ', Norfolk, UK',
+
+                    format:
+                        'json',
+
+                    polygon_geojson:
+                        1,
+
+                    limit:
+                        1
+
+                })
+
+            );
+
+
+        if (
+            !response.ok
+        ) {
+
+            throw new Error(
+                'Boundary lookup failed'
+            );
+
+        }
+
+
+        const results =
+            await response.json();
+
+
+        if (
+            results.length === 0
+        ) {
+
+            console.warn(
+                'No boundary found for:',
+                areaName
+            );
+
+            return;
+
+        }
+
+
+        const result =
+            results[0];
+
+
+        if (
+            result.geojson
+        ) {
+
+            currentAreaBoundary =
+                result.geojson;
+
+
+            console.log(
+                '🗺️ AREA BOUNDARY LOADED:',
+                areaName
+            );
+
+
+            updateExplorationDisplay();
+
+        }
+
+    }
+
+    catch (error) {
+
+        console.error(
+            'Boundary error:',
+            error
+        );
+
+    }
+
+    finally {
+
+        locationRequestInProgress =
+            false;
+
+    }
+
+}
+
+
+/* -----------------------------------------------------
+   CALCULATE AREA PERCENTAGE
+----------------------------------------------------- */
+
+function calculateAreaPercentage() {
+
+    if (
+        !currentAreaBoundary
+    ) {
+
+        return 0;
+
+    }
+
+
+    let exploredInside =
+        0;
+
+
+    let totalAreaCells =
+        0;
+
+
+    /*
+       We examine the existing explored cells
+       first. This makes the percentage live
+       without changing the XP system.
+    */
+
+    for (
+        const key
+        of exploredGridCells
+    ) {
+
+        const parts =
+            key.split('_');
+
+
+        const cellX =
+            parseInt(parts[0]);
+
+
+        const cellY =
+            parseInt(parts[1]);
+
+
+        if (
+            !isFinite(cellX) ||
+            !isFinite(cellY)
+        ) {
+
+            continue;
+
+        }
+
+
+        const centreMetres = {
+
+            x:
+                (
+                    cellX +
+                    0.5
+                )
+                *
+                gridSize,
+
+            y:
+                (
+                    cellY +
+                    0.5
+                )
+                *
+                gridSize
+
+        };
+
+
+        const centre =
+            metresToLatLng(
+
+                centreMetres.x,
+
+                centreMetres.y
+
+            );
+
+
+        if (
+            pointInsideGeoJSON(
+
+                centre.lat,
+
+                centre.lng,
+
+                currentAreaBoundary
+
+            )
+        ) {
+
+            exploredInside++;
+
+        }
+
+    }
+
+
+    /*
+       Estimate the total number of grid cells
+       inside the current area's bounding box.
+    */
+
+    const bounds =
+        getGeoJSONBounds(
+            currentAreaBoundary
+        );
+
+
+    if (
+        !bounds
+    ) {
+
+        return 0;
+
+    }
+
+
+    const southWest =
+        latLngToMetres(
+
+            bounds.minLat,
+
+            bounds.minLng
+
+        );
+
+
+    const northEast =
+        latLngToMetres(
+
+            bounds.maxLat,
+
+            bounds.maxLng
+
+        );
+
+
+    const minX =
+        Math.floor(
+            southWest.x /
+            gridSize
+        );
+
+
+    const maxX =
+        Math.ceil(
+            northEast.x /
+            gridSize
+        );
+
+
+    const minY =
+        Math.floor(
+            southWest.y /
+            gridSize
+        );
+
+
+    const maxY =
+        Math.ceil(
+            northEast.y /
+            gridSize
+        );
+
+
+    /*
+       Safety limit so a large boundary
+       doesn't freeze the phone.
+    */
+
+    const width =
+        maxX - minX;
+
+
+    const height =
+        maxY - minY;
+
+
+    const estimatedCells =
+        width *
+        height;
+
+
+    if (
+        estimatedCells >
+        100000
+    ) {
+
+        /*
+           For larger places, use a
+           practical area estimate.
+        */
+
+        const latHeight =
+            distanceMetres(
+
+                bounds.minLat,
+                bounds.minLng,
+
+                bounds.maxLat,
+                bounds.minLng
+
+            );
+
+
+        const lngWidth =
+            distanceMetres(
+
+                bounds.minLat,
+                bounds.minLng,
+
+                bounds.minLat,
+                bounds.maxLng
+
+            );
+
+
+        const approximateArea =
+            latHeight *
+            lngWidth;
+
+
+        totalAreaCells =
+            approximateArea /
+            (
+                gridSize *
+                gridSize
+            );
+
+    }
+
+    else {
+
+        /*
+           Count cells inside the actual
+           boundary for smaller areas.
+        */
+
+        for (
+            let x = minX;
+
+            x <= maxX;
+
+            x++
+        ) {
+
+            for (
+                let y = minY;
+
+                y <= maxY;
+
+                y++
+            ) {
+
+                const centre =
+                    metresToLatLng(
+
+                        (
+                            x +
+                            0.5
+                        )
+                        *
+                        gridSize,
+
+                        (
+                            y +
+                            0.5
+                        )
+                        *
+                        gridSize
+
+                    );
+
+
+                if (
+                    pointInsideGeoJSON(
+
+                        centre.lat,
+
+                        centre.lng,
+
+                        currentAreaBoundary
+
+                    )
+                ) {
+
+                    totalAreaCells++;
+
+                }
+
+            }
+
+        }
+
+    }
+
+
+    if (
+        totalAreaCells <= 0
+    ) {
+
+        return 0;
+
+    }
+
+
+    return Math.min(
+
+        100,
+
+        (
+            exploredInside /
+            totalAreaCells
+        )
+        *
+        100
+
+    );
+
+}
+
+
+/* -----------------------------------------------------
+   GET GEOJSON BOUNDS
+----------------------------------------------------- */
+
+function getGeoJSONBounds(
+    geojson
+) {
+
+    if (
+        !geojson ||
+        !geojson.geometry
+    ) {
+
+        return null;
+
+    }
+
+
+    let minLat =
+        Infinity;
+
+    let maxLat =
+        -Infinity;
+
+    let minLng =
+        Infinity;
+
+    let maxLng =
+        -Infinity;
+
+
+    function inspectCoordinates(
+        coordinates
+    ) {
+
+        if (
+            typeof coordinates[0] ===
+            'number'
+        ) {
+
+            const lng =
+                coordinates[0];
+
+            const lat =
+                coordinates[1];
+
+
+            minLng =
+                Math.min(
+                    minLng,
+                    lng
+                );
+
+            maxLng =
+                Math.max(
+                    maxLng,
+                    lng
+                );
+
+            minLat =
+                Math.min(
+                    minLat,
+                    lat
+                );
+
+            maxLat =
+                Math.max(
+                    maxLat,
+                    lat
+                );
+
+
+            return;
+
+        }
+
+
+        for (
+            const item
+            of coordinates
+        ) {
+
+            inspectCoordinates(
+                item
+            );
+
+        }
+
+    }
+
+
+    inspectCoordinates(
+
+        geojson.geometry.coordinates
+
+    );
+
+
+    if (
+        !isFinite(minLat) ||
+        !isFinite(maxLat) ||
+        !isFinite(minLng) ||
+        !isFinite(maxLng)
+    ) {
+
+        return null;
+
+    }
+
+
+    return {
+
+        minLat,
+        maxLat,
+        minLng,
+        maxLng
+
+    };
+
+}
+
+
+/* -----------------------------------------------------
+   UPDATE BOTTOM HUD
+----------------------------------------------------- */
+
+function updateLocationHUD() {
+
+    const locationElement =
+        document.getElementById(
+            'currentLocation'
+        );
+
+
+    const percentageElement =
+        document.getElementById(
+            'explorationPercentage'
+        );
+
+
+    if (
+        currentAreaName
+    ) {
+
+        locationElement.textContent =
+            currentAreaName;
+
+    }
+
+
+    const percentage =
+        calculateAreaPercentage();
+
+
+    percentageElement.textContent =
+
+        percentage.toFixed(2) +
+        '%';
+
+}
+
+
+/* -----------------------------------------------------
+   UPDATE EXPLORATION DISPLAY
+----------------------------------------------------- */
+
+function updateExplorationDisplay() {
+
+    updateLocationHUD();
+
+}
 /* =====================================================
    GPS ERROR
 ===================================================== */
