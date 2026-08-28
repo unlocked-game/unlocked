@@ -295,10 +295,13 @@ const gridSize =
 /*
    GPS accuracy required
    for exploration.
+
+   Tightened to 10m because
+   our grid cells are only 5m.
 */
 
 const maxGPSAccuracy =
-    20;
+    10;
 
 
 /*
@@ -356,20 +359,6 @@ let hasAcceptedGPS =
 ===================================================== */
 
 let gpsStableSince =
-    null;
-
-
-/* =====================================================
-   GPS CELL CONFIRMATION
-===================================================== */
-
-let candidateGridCell =
-    null;
-
-let candidateLat =
-    null;
-
-let candidateLng =
     null;
 
 
@@ -754,6 +743,9 @@ function exploreGridCell(
 
     /*
        Already explored?
+
+       Nothing happens.
+       No XP awarded.
     */
 
     if (
@@ -764,100 +756,15 @@ function exploreGridCell(
 
     ) {
 
-        candidateGridCell =
-            null;
-
-        candidateLat =
-            null;
-
-        candidateLng =
-            null;
-
         return;
 
     }
 
 
     /*
-       First time seeing
-       this new cell.
+       NEW 5m × 5m CELL.
 
-       Do NOT award XP yet.
-
-       Store it as a candidate.
-    */
-
-    if (
-
-        candidateGridCell === null
-
-    ) {
-
-        candidateGridCell =
-            cell.key;
-
-        candidateLat =
-            lat;
-
-        candidateLng =
-            lng;
-
-        console.log(
-
-            'CANDIDATE CELL:',
-            cell.key
-
-        );
-
-        return;
-
-    }
-
-
-    /*
-       If GPS moved into a
-       different new cell before
-       confirming the candidate,
-       replace the candidate.
-
-       This prevents an old GPS
-       position from being confirmed
-       later.
-    */
-
-    if (
-
-        candidateGridCell !==
-        cell.key
-
-    ) {
-
-        candidateGridCell =
-            cell.key;
-
-        candidateLat =
-            lat;
-
-        candidateLng =
-            lng;
-
-        console.log(
-
-            'NEW CANDIDATE CELL:',
-            cell.key
-
-        );
-
-        return;
-
-    }
-
-
-    /*
-       Same candidate cell has
-       now been reported again.
-
-       Confirm it.
+       Unlock immediately.
     */
 
     exploredGridCells.push(
@@ -889,22 +796,23 @@ function exploreGridCell(
 
     console.log(
 
-        'CONFIRMED NEW GRID CELL:',
+        'NEW GRID CELL UNLOCKED:',
         cell.key,
         '+25 XP'
 
     );
 
 
-    candidateGridCell =
-        null;
+    document.getElementById(
+        'status'
+    ).textContent =
 
-    candidateLat =
-        null;
+        '🔓 LAND UNLOCKED — +25 XP';
 
-    candidateLng =
-        null;
 
+    /*
+       Redraw permanent fog.
+    */
 
     drawFog();
 
@@ -1382,10 +1290,8 @@ function drawFog() {
        Small temporary reveal
        around player.
 
-       This remains disabled
-       as a permanent reveal.
+       Disabled as permanent reveal.
     */
-
 
     fogContext.globalCompositeOperation =
         'source-over';
@@ -1615,8 +1521,6 @@ map.on(
 
 
             /*
-               IMPORTANT:
-
                First GPS fix does NOT
                award exploration.
             */
@@ -1775,8 +1679,7 @@ map.on(
         /*
            Check the new 5m cell.
 
-           The function now requires
-           confirmation before awarding XP.
+           New cells unlock immediately.
         */
 
         exploreGridCell(
