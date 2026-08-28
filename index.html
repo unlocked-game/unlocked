@@ -55,7 +55,7 @@ body {
 
     transform: translateX(-50%);
 
-    z-index: 1200;
+    z-index: 3500;
 
     background: rgba(0,0,0,0.72);
 
@@ -245,7 +245,7 @@ body {
     right: 12px;
     bottom: 14px;
 
-    z-index: 1100;
+    z-index: 3000;
 
     display: flex;
 
@@ -3708,17 +3708,17 @@ async function updateCurrentLocation(
 
         const newArea =
 
-            address.village ||
+    address.suburb ||
 
-            address.town ||
+    address.village ||
 
-            address.city ||
+    address.hamlet ||
 
-            address.suburb ||
+    address.town ||
 
-            address.hamlet ||
+    address.city ||
 
-            'Unknown';
+    'Unknown';
 
 
         if (
