@@ -2712,7 +2712,230 @@ map.on(
     drawFog
 );
 
+/* =====================================================
+   LOCATION / AREA HUD
+===================================================== */
 
+let currentAreaName = "LOCATING...";
+
+
+/* =====================================================
+   UPDATE LOCATION HUD
+===================================================== */
+
+function updateLocationHUD() {
+
+    const locationElement =
+        document.getElementById(
+            'currentLocation'
+        );
+
+    const percentageElement =
+        document.getElementById(
+            'explorationPercentage'
+        );
+
+
+    if (!locationElement) {
+        return;
+    }
+
+
+    locationElement.textContent =
+        currentAreaName;
+
+
+    if (percentageElement) {
+
+        percentageElement.textContent =
+            calculateAreaExplorationPercentage();
+
+    }
+
+}
+
+
+/* =====================================================
+   UPDATE CURRENT LOCATION
+===================================================== */
+
+function updateCurrentLocation(
+    lat,
+    lng
+) {
+
+    /*
+       Temporary local-area detection.
+
+       These boundaries can later be replaced
+       with proper reverse-geocoding so UNLOCKED
+       automatically knows every town/village.
+    */
+
+    if (
+        lat >= 52.575 &&
+        lat <= 52.625 &&
+        lng >= 1.690 &&
+        lng <= 1.760
+    ) {
+
+        currentAreaName =
+            "Bradwell";
+
+    }
+
+    else if (
+        lat >= 52.590 &&
+        lat <= 52.650 &&
+        lng >= 1.700 &&
+        lng <= 1.800
+    ) {
+
+        currentAreaName =
+            "Gorleston";
+
+    }
+
+    else {
+
+        currentAreaName =
+            "Exploring";
+
+    }
+
+
+    updateLocationHUD();
+
+}
+
+
+/* =====================================================
+   AREA EXPLORATION PERCENTAGE
+===================================================== */
+
+function calculateAreaExplorationPercentage() {
+
+    /*
+       Prototype calculation.
+
+       For now this uses the amount of land unlocked
+       while the player is inside the current area.
+
+       This will later become a proper percentage
+       against the actual mapped area boundary.
+    */
+
+    const unlockedArea =
+        exploredGridCells.length *
+        gridSize *
+        gridSize;
+
+
+    /*
+       Prototype area size.
+
+       Bradwell is currently treated as approximately
+       2 km² for the percentage display.
+
+       This is deliberately kept separate so we can
+       replace it later with real boundary data.
+    */
+
+    const areaSize =
+        2000000;
+
+
+    const percentage =
+
+        (
+            unlockedArea /
+            areaSize
+        ) *
+        100;
+
+
+    return Math.min(
+        100,
+        percentage
+    ).toFixed(2) + "%";
+
+}
+
+
+/* =====================================================
+   PROGRESS PANEL CONTROLS
+===================================================== */
+
+function showProgress() {
+
+    document.getElementById(
+        'progressPanel'
+    ).style.display =
+        'block';
+
+    updateProgressPanel();
+
+}
+
+
+function closeProgress() {
+
+    document.getElementById(
+        'progressPanel'
+    ).style.display =
+        'none';
+
+}
+
+
+/* =====================================================
+   DISCOVERIES PANEL CONTROLS
+===================================================== */
+
+function showDiscoveries() {
+
+    document.getElementById(
+        'discoveriesPanel'
+    ).style.display =
+        'block';
+
+    updateDiscoveriesPanel();
+
+}
+
+
+function closeDiscoveries() {
+
+    document.getElementById(
+        'discoveriesPanel'
+    ).style.display =
+        'none';
+
+}
+
+
+/* =====================================================
+   SETTINGS PANEL CONTROLS
+===================================================== */
+
+function showSettings() {
+
+    document.getElementById(
+        'settingsPanel'
+    ).style.display =
+        'block';
+
+}
+
+
+function closeSettings() {
+
+    document.getElementById(
+        'settingsPanel'
+    ).style.display =
+        'none';
+
+}
 /* =====================================================
    GPS START
 ===================================================== */
