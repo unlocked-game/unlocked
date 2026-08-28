@@ -272,7 +272,11 @@ playerPane.style.zIndex =
 ===================================================== */
 
 /*
-   Small temporary visual aid.
+   Small temporary visual aid
+   around the player.
+
+   This is NOT the permanent
+   exploration area.
 */
 
 const revealRadius =
@@ -280,7 +284,21 @@ const revealRadius =
 
 
 /*
-   Actual exploration grid.
+   REAL EXPLORATION WIDTH
+
+   The player unlocks a corridor
+   approximately 15 metres wide
+   around their walking route.
+
+   7.5m either side of the route.
+*/
+
+const explorationRadius =
+    7.5;
+
+
+/*
+   Underlying permanent grid.
 
    Each cell is:
 
@@ -293,11 +311,8 @@ const gridSize =
 
 
 /*
-   GPS accuracy required
+   Maximum GPS accuracy accepted
    for exploration.
-
-   Tightened to 10m because
-   our grid cells are only 5m.
 */
 
 const maxGPSAccuracy =
@@ -305,8 +320,11 @@ const maxGPSAccuracy =
 
 
 /*
-   Maximum sudden GPS jump
-   we will accept.
+   Maximum single GPS movement
+   accepted between readings.
+
+   Larger jumps are treated as
+   unreliable GPS.
 */
 
 const maxGPSJump =
@@ -314,8 +332,8 @@ const maxGPSJump =
 
 
 /*
-   Minimum movement before
-   processing another position.
+   Minimum movement before another
+   exploration calculation.
 */
 
 const minimumMovement =
@@ -323,13 +341,50 @@ const minimumMovement =
 
 
 /*
-   GPS must stabilise for
-   this long before exploration
-   begins.
+   GPS must stabilise before
+   exploration starts.
 */
 
 const gpsStabilityTime =
     5000;
+
+
+/*
+   WALKING SPEED LIMIT
+
+   3.0 m/s = 10.8 km/h
+
+   Anything above this is treated
+   as vehicle-like movement.
+
+   Normal walking should remain
+   comfortably below this.
+*/
+
+const maximumWalkingSpeed =
+    3.0;
+
+
+/*
+   If GPS reports a speed above
+   this value, exploration is
+   immediately blocked.
+*/
+
+const hardVehicleSpeed =
+    4.0;
+
+
+/*
+   How often we sample the route
+   when filling the corridor.
+
+   2.5m gives a smooth continuous
+   exploration footprint.
+*/
+
+const corridorSampleSpacing =
+    2.5;
 
 
 /* =====================================================
@@ -350,6 +405,9 @@ let acceptedLat =
 let acceptedLng =
     null;
 
+let acceptedTime =
+    null;
+
 let hasAcceptedGPS =
     false;
 
@@ -360,6 +418,17 @@ let hasAcceptedGPS =
 
 let gpsStableSince =
     null;
+
+
+/* =====================================================
+   VEHICLE DETECTION STATE
+===================================================== */
+
+let vehicleDetected =
+    false;
+
+let vehicleSamples =
+    0;
 
 
 /* =====================================================
@@ -721,18 +790,135 @@ function getGridCell(
 
 
 /* =====================================================
-   EXPLORE GRID CELL
+   POINT → CELL DISTANCE
 ===================================================== */
 
-function exploreGridCell(
+/*
+   Returns the shortest distance
+   from a point to a grid cell.
+
+   This lets us create an actual
+   7.5m-radius corridor without
+   making the corridor unnecessarily
+   large.
+*/
+
+function distancePointToCell(
+
+    pointX,
+    pointY,
+
+    cellX,
+    cellY
+
+) {
+
+    const cellMinX =
+        cellX *
+        gridSize;
+
+    const cellMaxX =
+        (
+            cellX + 1
+        ) *
+        gridSize;
+
+    const cellMinY =
+        cellY *
+        gridSize;
+
+    const cellMaxY =
+        (
+            cellY + 1
+        ) *
+        gridSize;
+
+
+    let closestX =
+        pointX;
+
+    let closestY =
+        pointY;
+
+
+    if (
+        pointX < cellMinX
+    ) {
+
+        closestX =
+            cellMinX;
+
+    }
+
+    else if (
+        pointX > cellMaxX
+    ) {
+
+        closestX =
+            cellMaxX;
+
+    }
+
+
+    if (
+        pointY < cellMinY
+    ) {
+
+        closestY =
+            cellMinY;
+
+    }
+
+    else if (
+        pointY > cellMaxY
+    ) {
+
+        closestY =
+            cellMaxY;
+
+    }
+
+
+    const dx =
+        pointX -
+        closestX;
+
+    const dy =
+        pointY -
+        closestY;
+
+
+    return Math.sqrt(
+
+        dx * dx +
+        dy * dy
+
+    );
+
+}
+
+
+/* =====================================================
+   UNLOCK CELLS AROUND A POINT
+===================================================== */
+
+function unlockCellsAroundPoint(
 
     lat,
     lng
 
 ) {
 
-    const cell =
+    const metres =
+        latLngToMetres(
 
+            lat,
+            lng
+
+        );
+
+
+    const centreCell =
         getGridCell(
 
             lat,
@@ -742,77 +928,327 @@ function exploreGridCell(
 
 
     /*
-       Already explored?
-
-       Nothing happens.
-       No XP awarded.
+       Number of cells needed
+       around the exploration radius.
     */
 
-    if (
+    const cellRange =
 
-        exploredGridCells.includes(
-            cell.key
-        )
+        Math.ceil(
+
+            explorationRadius /
+            gridSize
+
+        ) + 1;
+
+
+    let newCells =
+        0;
+
+
+    for (
+
+        let x =
+            centreCell.x -
+            cellRange;
+
+        x <=
+            centreCell.x +
+            cellRange;
+
+        x++
 
     ) {
 
-        return;
+        for (
+
+            let y =
+                centreCell.y -
+                cellRange;
+
+            y <=
+                centreCell.y +
+                cellRange;
+
+            y++
+
+        ) {
+
+            /*
+               Ignore cells already
+               permanently explored.
+            */
+
+            const key =
+                x +
+                '_' +
+                y;
+
+
+            if (
+
+                exploredGridCells.includes(
+                    key
+                )
+
+            ) {
+
+                continue;
+
+            }
+
+
+            /*
+               Check actual distance
+               between the GPS point
+               and the cell.
+            */
+
+            const distance =
+
+                distancePointToCell(
+
+                    metres.x,
+                    metres.y,
+
+                    x,
+                    y
+
+                );
+
+
+            if (
+
+                distance <=
+                explorationRadius
+
+            ) {
+
+                exploredGridCells.push(
+                    key
+                );
+
+
+                newCells++;
+
+            }
+
+        }
 
     }
 
 
     /*
-       NEW 5m × 5m CELL.
-
-       Unlock immediately.
+       Award XP only for genuinely
+       new cells.
     */
 
-    exploredGridCells.push(
-        cell.key
-    );
+    if (
+        newCells > 0
+    ) {
+
+        localStorage.setItem(
+
+            'unlockedGridCells',
+
+            JSON.stringify(
+                exploredGridCells
+            )
+
+        );
 
 
-    localStorage.setItem(
+        awardXP(
 
-        'unlockedGridCells',
+            newCells *
+            25
 
-        JSON.stringify(
-            exploredGridCells
+        );
+
+
+        console.log(
+
+            'NEW CELLS:',
+            newCells,
+
+            'XP:',
+            newCells * 25
+
+        );
+
+
+        document.getElementById(
+            'status'
+        ).textContent =
+
+            '🔓 LAND UNLOCKED — +' +
+
+            (
+                newCells *
+                25
+            ) +
+
+            ' XP';
+
+    }
+
+
+    return newCells;
+
+}
+
+
+/* =====================================================
+   UNLOCK CORRIDOR BETWEEN TWO POINTS
+===================================================== */
+
+function unlockWalkingCorridor(
+
+    startLat,
+    startLng,
+
+    endLat,
+    endLng
+
+) {
+
+    const start =
+        latLngToMetres(
+
+            startLat,
+            startLng
+
+        );
+
+
+    const end =
+        latLngToMetres(
+
+            endLat,
+            endLng
+
+        );
+
+
+    const dx =
+        end.x -
+        start.x;
+
+
+    const dy =
+        end.y -
+        start.y;
+
+
+    const distance =
+        Math.sqrt(
+
+            dx * dx +
+            dy * dy
+
+        );
+
+
+    /*
+       Work out how many sample
+       points are required.
+
+       Every 2.5m gives us a
+       continuous corridor.
+    */
+
+    const samples = Math.max(
+
+        1,
+
+        Math.ceil(
+
+            distance /
+            corridorSampleSpacing
+
         )
 
     );
 
 
+    let totalNewCells =
+        0;
+
+
+    for (
+
+        let i = 0;
+
+        i <= samples;
+
+        i++
+
+    ) {
+
+        const ratio =
+
+            i /
+            samples;
+
+
+        const x =
+
+            start.x +
+            (
+                dx *
+                ratio
+            );
+
+
+        const y =
+
+            start.y +
+            (
+                dy *
+                ratio
+            );
+
+
+        const position =
+            metresToLatLng(
+
+                x,
+                y
+
+            );
+
+
+        totalNewCells +=
+
+            unlockCellsAroundPoint(
+
+                position.lat,
+                position.lng
+
+            );
+
+    }
+
+
     /*
-       5m × 5m =
-       25m² =
-       25 XP
+       If nothing new was unlocked,
+       don't keep changing the HUD.
     */
 
-    awardXP(
-        25
-    );
+    if (
 
+        totalNewCells === 0
 
-    console.log(
+    ) {
 
-        'NEW GRID CELL UNLOCKED:',
-        cell.key,
-        '+25 XP'
+        document.getElementById(
+            'status'
+        ).textContent =
 
-    );
+            'UNLOCKED — AREA ALREADY EXPLORED';
 
+    }
 
-    document.getElementById(
-        'status'
-    ).textContent =
-
-        '🔓 LAND UNLOCKED — +25 XP';
-
-
-    /*
-       Redraw permanent fog.
-    */
 
     drawFog();
 
@@ -1286,13 +1722,6 @@ function drawFog() {
     }
 
 
-    /*
-       Small temporary reveal
-       around player.
-
-       Disabled as permanent reveal.
-    */
-
     fogContext.globalCompositeOperation =
         'source-over';
 
@@ -1378,20 +1807,33 @@ map.on(
             e.accuracy;
 
 
+        const gpsSpeed =
+            e.speed;
+
+
+        const gpsTimestamp =
+            e.timestamp ||
+            Date.now();
+
+
         console.log(
 
             'RAW GPS:',
             gpsLat,
             gpsLng,
+
             'accuracy:',
-            accuracy
+            accuracy,
+
+            'speed:',
+            gpsSpeed
 
         );
 
 
-        /*
-           Reject poor GPS fixes.
-        */
+        /* =============================================
+           GPS ACCURACY CHECK
+        ============================================= */
 
         if (
 
@@ -1416,9 +1858,9 @@ map.on(
         }
 
 
-        /*
-           First good GPS fix.
-        */
+        /* =============================================
+           FIRST GOOD GPS FIX
+        ============================================= */
 
         if (
 
@@ -1438,8 +1880,20 @@ map.on(
                 gpsLng;
 
 
+            acceptedTime =
+                gpsTimestamp;
+
+
             gpsStableSince =
                 Date.now();
+
+
+            vehicleDetected =
+                false;
+
+
+            vehicleSamples =
+                0;
 
 
             document.getElementById(
@@ -1486,7 +1940,7 @@ map.on(
 
 
             /*
-               Create marker.
+               Create player marker.
             */
 
             marker =
@@ -1522,7 +1976,7 @@ map.on(
 
             /*
                First GPS fix does NOT
-               award exploration.
+               unlock anything.
             */
 
             drawFog();
@@ -1532,52 +1986,9 @@ map.on(
         }
 
 
-        /*
-           GPS stabilisation period.
-
-           During this period we update
-           the reference position but do
-           not unlock any cells.
-        */
-
-        if (
-
-            gpsStableSince !== null &&
-
-            Date.now() -
-            gpsStableSince <
-            gpsStabilityTime
-
-        ) {
-
-            acceptedLat =
-                gpsLat;
-
-            acceptedLng =
-                gpsLng;
-
-
-            marker.setLatLng(
-                e.latlng
-            );
-
-
-            document.getElementById(
-                'status'
-            ).textContent =
-
-                'UNLOCKED — GPS STABILISING';
-
-
-            return;
-
-        }
-
-
-        /*
-           Calculate distance from
-           the last accepted position.
-        */
+        /* =============================================
+           CALCULATE MOVEMENT
+        ============================================= */
 
         const movement =
 
@@ -1592,15 +2003,168 @@ map.on(
             );
 
 
+        const elapsedSeconds =
+
+            Math.max(
+
+                0.5,
+
+                (
+                    gpsTimestamp -
+                    acceptedTime
+                ) / 1000
+
+            );
+
+
+        const calculatedSpeed =
+
+            movement /
+            elapsedSeconds;
+
+
         /*
-           Ignore tiny GPS wobble.
+           Use the browser's GPS speed
+           if available.
+
+           Otherwise calculate it
+           ourselves.
+        */
+
+        let effectiveSpeed =
+            calculatedSpeed;
+
+
+        if (
+
+            typeof gpsSpeed ===
+            'number'
+
+            &&
+
+            isFinite(
+                gpsSpeed
+            )
+
+            &&
+
+            gpsSpeed >= 0
+
+        ) {
+
+            effectiveSpeed =
+                Math.max(
+
+                    calculatedSpeed,
+
+                    gpsSpeed
+
+                );
+
+        }
+
+
+        console.log(
+
+            'MOVEMENT:',
+            movement.toFixed(1),
+            'm',
+
+            'TIME:',
+            elapsedSeconds.toFixed(1),
+            's',
+
+            'SPEED:',
+            effectiveSpeed.toFixed(2),
+            'm/s',
+
+            '(' +
+            (
+                effectiveSpeed *
+                3.6
+            ).toFixed(1) +
+            ' km/h)'
+
+        );
+
+
+        /* =============================================
+           VEHICLE DETECTION
+        ============================================= */
+
+        /*
+           Hard vehicle speed.
+
+           If the GPS gives us a clear
+           vehicle-like speed, immediately
+           block exploration.
         */
 
         if (
 
-            movement < minimumMovement
+            typeof gpsSpeed ===
+            'number'
+
+            &&
+
+            isFinite(
+                gpsSpeed
+            )
+
+            &&
+
+            gpsSpeed >=
+            hardVehicleSpeed
 
         ) {
+
+            vehicleDetected =
+                true;
+
+
+            vehicleSamples++;
+
+
+            document.getElementById(
+                'status'
+            ).textContent =
+
+                '🚗 VEHICLE MOVEMENT — EXPLORATION PAUSED';
+
+
+            console.log(
+
+                'VEHICLE DETECTED — GPS SPEED:',
+                gpsSpeed
+
+            );
+
+
+            /*
+               We still update the
+               player marker.
+
+               But NOTHING is unlocked.
+            */
+
+            acceptedLat =
+                gpsLat;
+
+            acceptedLng =
+                gpsLng;
+
+            acceptedTime =
+                gpsTimestamp;
+
+
+            if (marker) {
+
+                marker.setLatLng(
+                    e.latlng
+                );
+
+            }
+
 
             return;
 
@@ -1608,12 +2172,168 @@ map.on(
 
 
         /*
-           Reject sudden GPS jumps.
+           Calculated speed can also
+           catch vehicle movement when
+           e.speed is unavailable.
         */
 
         if (
 
-            movement > maxGPSJump
+            calculatedSpeed >
+            maximumWalkingSpeed
+
+        ) {
+
+            vehicleDetected =
+                true;
+
+
+            vehicleSamples++;
+
+
+            document.getElementById(
+                'status'
+            ).textContent =
+
+                '🚗 FAST MOVEMENT — EXPLORATION PAUSED';
+
+
+            console.log(
+
+                'FAST MOVEMENT REJECTED:',
+
+                calculatedSpeed.toFixed(2),
+
+                'm/s'
+
+            );
+
+
+            acceptedLat =
+                gpsLat;
+
+            acceptedLng =
+                gpsLng;
+
+            acceptedTime =
+                gpsTimestamp;
+
+
+            if (marker) {
+
+                marker.setLatLng(
+                    e.latlng
+                );
+
+            }
+
+
+            return;
+
+        }
+
+
+        /*
+           If we're back below the
+           walking threshold, allow
+           exploration again.
+
+           The user must still produce
+           valid walking movement.
+        */
+
+        if (
+
+            effectiveSpeed <=
+            maximumWalkingSpeed
+
+        ) {
+
+            vehicleDetected =
+                false;
+
+        }
+
+
+        /* =============================================
+           GPS STABILISATION
+        ============================================= */
+
+        if (
+
+            gpsStableSince !== null
+
+            &&
+
+            Date.now() -
+            gpsStableSince <
+            gpsStabilityTime
+
+        ) {
+
+            acceptedLat =
+                gpsLat;
+
+            acceptedLng =
+                gpsLng;
+
+            acceptedTime =
+                gpsTimestamp;
+
+
+            if (marker) {
+
+                marker.setLatLng(
+                    e.latlng
+                );
+
+            }
+
+
+            document.getElementById(
+                'status'
+            ).textContent =
+
+                'UNLOCKED — GPS STABILISING';
+
+
+            return;
+
+        }
+
+
+        /* =============================================
+           IGNORE TINY MOVEMENT
+        ============================================= */
+
+        if (
+
+            movement <
+            minimumMovement
+
+        ) {
+
+            if (marker) {
+
+                marker.setLatLng(
+                    e.latlng
+                );
+
+            }
+
+            return;
+
+        }
+
+
+        /* =============================================
+           GPS JUMP CHECK
+        ============================================= */
+
+        if (
+
+            movement >
+            maxGPSJump
 
         ) {
 
@@ -1635,39 +2355,99 @@ map.on(
                 'GPS SIGNAL — MOVEMENT CHECKING';
 
 
+            /*
+               Do NOT move the accepted
+               exploration reference.
+
+               This prevents a GPS jump
+               from creating a huge
+               exploration streak.
+            */
+
+            if (marker) {
+
+                marker.setLatLng(
+                    e.latlng
+                );
+
+            }
+
+
+            return;
+
+        }
+
+
+        /* =============================================
+           FINAL WALKING VALIDATION
+        ============================================= */
+
+        if (
+            vehicleDetected
+        ) {
+
+            document.getElementById(
+                'status'
+            ).textContent =
+
+                '🚗 VEHICLE MOVEMENT — EXPLORATION PAUSED';
+
+
+            acceptedLat =
+                gpsLat;
+
+            acceptedLng =
+                gpsLng;
+
+            acceptedTime =
+                gpsTimestamp;
+
+
             return;
 
         }
 
 
         /*
-           Accept the movement.
+           Movement is now considered
+           valid walking movement.
         */
+
+        const previousLat =
+            acceptedLat;
+
+        const previousLng =
+            acceptedLng;
+
 
         acceptedLat =
             gpsLat;
 
-
         acceptedLng =
             gpsLng;
 
+        acceptedTime =
+            gpsTimestamp;
 
-        /*
-           Move player marker.
-        */
 
-        marker.setLatLng(
+        /* =============================================
+           MOVE PLAYER
+        ============================================= */
 
-            e.latlng
+        if (marker) {
 
-        );
+            marker.setLatLng(
+                e.latlng
+            );
+
+        }
 
 
         document.getElementById(
             'status'
         ).textContent =
 
-            'UNLOCKED — GPS WORKING — ±' +
+            'UNLOCKED — WALKING — ±' +
 
             Math.round(
                 accuracy
@@ -1676,16 +2456,16 @@ map.on(
             'm';
 
 
-        /*
-           Check the new 5m cell.
+        /* =============================================
+           UNLOCK WALKING CORRIDOR
+        ============================================= */
 
-           New cells unlock immediately.
-        */
+        unlockWalkingCorridor(
 
-        exploreGridCell(
+            previousLat,
+            previousLng,
 
             gpsLat,
-
             gpsLng
 
         );
