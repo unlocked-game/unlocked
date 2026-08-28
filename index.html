@@ -245,9 +245,31 @@ body {
     right: 12px;
     bottom: 14px;
 
-    z-index: 3000;
+    z-index: 99999 !important;
 
     display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    font-family: Arial, sans-serif;
+
+    pointer-events: none;
+
+    isolation: isolate;
+
+}
+
+#bottomHUD .locationCard,
+#bottomHUD .explorationCard,
+#bottomHUD .settingsButton {
+
+    position: relative;
+
+    z-index: 100000 !important;
+
+}
 
     align-items: center;
 
@@ -2235,7 +2257,7 @@ fogCanvas.style.height = '100%';
 
 fogCanvas.style.pointerEvents = 'none';
 
-fogCanvas.style.zIndex = 400;
+fogCanvas.style.zIndex = 1;
 
 
 map.getContainer()
