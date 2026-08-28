@@ -7,10 +7,10 @@
 
 <meta
     name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    content="width=device-width, initial-scale=1.0"
 >
 
-<title>UNLOCKED</title>
+<title>UNLOCKED Exploration Test</title>
 
 <link
     rel="stylesheet"
@@ -18,10 +18,6 @@
 />
 
 <style>
-
-/* =====================================================
-   BASE
-===================================================== */
 
 html,
 body {
@@ -33,10 +29,6 @@ body {
     height: 100%;
 
     overflow: hidden;
-
-    background: #111;
-
-    font-family: Arial, sans-serif;
 
 }
 
@@ -56,146 +48,124 @@ body {
 
     position: fixed;
 
-    top: 92px;
-    left: 50%;
-
-    transform: translateX(-50%);
+    top: 105px;
+    left: 15px;
+    right: 15px;
 
     z-index: 9999;
 
     background:
-        rgba(0,0,0,0.78);
+        rgba(0,0,0,0.75);
 
     color: white;
 
-    padding: 8px 14px;
+    padding: 10px;
 
-    border-radius: 20px;
+    border-radius: 10px;
 
-    font-size: 11px;
+    font-family: Arial, sans-serif;
+
+    font-size: 12px;
 
     font-weight: bold;
 
     text-align: center;
 
-    white-space: nowrap;
-
-    box-shadow:
-        0 3px 12px rgba(0,0,0,0.35);
-
     pointer-events: none;
-
-    transition:
-        opacity 0.25s ease;
 
 }
 
 
 /* =====================================================
-   MAIN TOP HUD
+   TOP HUD
 ===================================================== */
 
 #gameHUD {
 
     position: fixed;
 
-    top: 12px;
-    left: 12px;
-    right: 12px;
+    top: 15px;
+    left: 15px;
+    right: 15px;
 
     z-index: 1000;
 
-    display: flex;
-
-    align-items: flex-start;
-
-    justify-content: space-between;
-
-    pointer-events: none;
-
-}
-
-
-/* PLAYER AREA */
-
-.playerHUD {
-
-    pointer-events: auto;
+    padding: 12px 15px;
 
     background:
-        rgba(10,10,10,0.86);
-
-    color: white;
-
-    padding: 10px 13px;
+        rgba(0,0,0,0.82);
 
     border-radius: 16px;
 
-    min-width: 155px;
+    color: white;
+
+    font-family: Arial, sans-serif;
 
     box-shadow:
-        0 5px 18px rgba(0,0,0,0.4);
-
-    backdrop-filter:
-        blur(8px);
-
-    -webkit-backdrop-filter:
-        blur(8px);
+        0 5px 18px rgba(0,0,0,0.45);
 
 }
 
 
-.usernameRow {
+/* TOP ROW */
+
+.hudTop {
 
     display: flex;
 
     align-items: center;
 
-    gap: 6px;
+    justify-content: space-between;
 
-    font-size: 14px;
-
-    font-weight: bold;
+    gap: 10px;
 
 }
 
+.hudIdentity {
 
-.usernameArrow {
-
-    font-size: 10px;
-
-    opacity: 0.5;
+    min-width: 0;
 
 }
 
+.username {
 
-.levelRow {
+    font-size: 12px;
 
-    margin-top: 4px;
+    opacity: 0.55;
 
-    font-size: 10px;
+    margin-bottom: 3px;
+
+}
+
+.levelText {
+
+    font-size: 17px;
 
     font-weight: bold;
 
-    opacity: 0.65;
-
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
 
 }
 
 
 /* XP BAR */
 
+.hudXP {
+
+    flex: 1;
+
+    max-width: 150px;
+
+}
+
 .xpBarBackground {
 
     width: 100%;
 
-    height: 5px;
-
-    margin-top: 8px;
+    height: 7px;
 
     background:
-        rgba(255,255,255,0.12);
+        rgba(255,255,255,0.14);
 
     border-radius: 20px;
 
@@ -203,12 +173,11 @@ body {
 
 }
 
-
 .xpBarFill {
 
-    height: 100%;
-
     width: 0%;
+
+    height: 100%;
 
     background: white;
 
@@ -220,43 +189,31 @@ body {
 }
 
 
-/* TOP RIGHT */
+/* HUD BUTTONS */
 
-.topButtons {
+.hudButtons {
 
     display: flex;
 
-    gap: 8px;
-
-    pointer-events: auto;
+    gap: 7px;
 
 }
 
-
 .hudButton {
 
-    width: 48px;
-    height: 48px;
+    width: 38px;
+    height: 38px;
 
     border: none;
 
-    border-radius: 15px;
+    border-radius: 12px;
 
     background:
-        rgba(10,10,10,0.86);
+        rgba(255,255,255,0.12);
 
     color: white;
 
-    font-size: 20px;
-
-    box-shadow:
-        0 5px 18px rgba(0,0,0,0.4);
-
-    backdrop-filter:
-        blur(8px);
-
-    -webkit-backdrop-filter:
-        blur(8px);
+    font-size: 17px;
 
 }
 
@@ -269,129 +226,112 @@ body {
 
     position: fixed;
 
-    left: 12px;
-    right: 12px;
-    bottom: 12px;
+    bottom: 18px;
+    left: 15px;
+    right: 15px;
 
     z-index: 1000;
 
     display: flex;
 
-    align-items: flex-end;
+    align-items: center;
+
+    justify-content: center;
 
     gap: 8px;
 
-    pointer-events: none;
+    font-family: Arial, sans-serif;
 
 }
 
 
-.locationCard {
+/* LOCATION */
 
-    flex: 1;
-
-    min-width: 0;
+#locationDisplay {
 
     background:
-        rgba(10,10,10,0.86);
+        rgba(0,0,0,0.82);
 
     color: white;
 
-    border-radius: 16px;
+    padding: 11px 15px;
 
-    padding: 10px 13px;
+    border-radius: 14px;
 
-    box-shadow:
-        0 5px 18px rgba(0,0,0,0.4);
-
-    backdrop-filter:
-        blur(8px);
-
-    -webkit-backdrop-filter:
-        blur(8px);
-
-}
-
-
-.locationName {
-
-    font-size: 14px;
+    font-size: 13px;
 
     font-weight: bold;
 
-    white-space: nowrap;
+    box-shadow:
+        0 4px 15px rgba(0,0,0,0.4);
+
+    max-width: 48%;
 
     overflow: hidden;
+
+    white-space: nowrap;
 
     text-overflow: ellipsis;
 
 }
 
 
-.locationMeta {
+/* DISCOVERED PERCENT */
 
-    display: flex;
-
-    justify-content: space-between;
-
-    align-items: center;
-
-    margin-top: 4px;
-
-    font-size: 10px;
-
-    opacity: 0.55;
-
-    letter-spacing: 0.5px;
-
-}
-
-
-.locationPercent {
-
-    font-size: 12px;
-
-    font-weight: bold;
-
-    opacity: 1;
-
-}
-
-
-.settingsButton {
-
-    width: 48px;
-    height: 48px;
-
-    flex-shrink: 0;
-
-    border: none;
-
-    border-radius: 15px;
+#percentageDisplay {
 
     background:
-        rgba(10,10,10,0.86);
+        rgba(0,0,0,0.82);
 
     color: white;
 
-    font-size: 21px;
+    padding: 11px 15px;
+
+    border-radius: 14px;
+
+    font-size: 13px;
+
+    font-weight: bold;
 
     box-shadow:
-        0 5px 18px rgba(0,0,0,0.4);
+        0 4px 15px rgba(0,0,0,0.4);
 
-    pointer-events: auto;
+}
 
-    backdrop-filter:
-        blur(8px);
 
-    -webkit-backdrop-filter:
-        blur(8px);
+/* SETTINGS */
+
+#settingsButton {
+
+    position: fixed;
+
+    right: 15px;
+    bottom: 18px;
+
+    z-index: 1001;
+
+    width: 44px;
+    height: 44px;
+
+    border: none;
+
+    border-radius: 14px;
+
+    background:
+        rgba(0,0,0,0.82);
+
+    color: white;
+
+    font-size: 20px;
+
+    box-shadow:
+        0 4px 15px rgba(0,0,0,0.4);
 
 }
 
 
 /* =====================================================
-   SHARED PANEL
+   PANELS
 ===================================================== */
 
 .gamePanel {
@@ -400,10 +340,10 @@ body {
 
     position: fixed;
 
-    top: 12px;
-    left: 12px;
-    right: 12px;
-    bottom: 12px;
+    top: 15px;
+    left: 15px;
+    right: 15px;
+    bottom: 25px;
 
     z-index: 5000;
 
@@ -412,16 +352,18 @@ body {
 
     color: white;
 
-    border-radius: 20px;
+    border-radius: 18px;
 
     padding: 20px;
 
-    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+
+    box-shadow:
+        0 8px 30px rgba(0,0,0,0.6);
 
     overflow-y: auto;
 
-    box-shadow:
-        0 10px 40px rgba(0,0,0,0.7);
+    box-sizing: border-box;
 
 }
 
@@ -434,10 +376,9 @@ body {
 
     align-items: center;
 
-    margin-bottom: 22px;
+    margin-bottom: 20px;
 
 }
-
 
 .panelHeader h2 {
 
@@ -449,18 +390,17 @@ body {
 
 }
 
-
 .closePanel {
 
     border: none;
 
     background:
-        rgba(255,255,255,0.1);
+        rgba(255,255,255,0.12);
 
     color: white;
 
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
 
     border-radius: 50%;
 
@@ -486,7 +426,6 @@ body {
 
 }
 
-
 .discoveryStat {
 
     background:
@@ -500,7 +439,6 @@ body {
 
 }
 
-
 .discoveryStatValue {
 
     font-size: 24px;
@@ -509,17 +447,15 @@ body {
 
 }
 
-
 .discoveryStatLabel {
 
     margin-top: 5px;
 
-    font-size: 11px;
+    font-size: 12px;
 
-    opacity: 0.55;
+    opacity: 0.7;
 
 }
-
 
 .discoveryItem {
 
@@ -534,7 +470,6 @@ body {
 
 }
 
-
 .discoveryName {
 
     font-size: 17px;
@@ -543,10 +478,9 @@ body {
 
 }
 
-
 .discoveryCategory {
 
-    font-size: 10px;
+    font-size: 11px;
 
     opacity: 0.5;
 
@@ -557,7 +491,6 @@ body {
     letter-spacing: 1px;
 
 }
-
 
 .discoveryDescription {
 
@@ -571,7 +504,6 @@ body {
 
 }
 
-
 .discoveryXP {
 
     margin-top: 8px;
@@ -581,7 +513,6 @@ body {
     font-weight: bold;
 
 }
-
 
 .noDiscoveries {
 
@@ -594,7 +525,6 @@ body {
     line-height: 1.5;
 
 }
-
 
 .testDiscoveryButton {
 
@@ -616,204 +546,6 @@ body {
     font-weight: bold;
 
     margin-top: 15px;
-
-}
-
-
-/* =====================================================
-   PROFILE / STATS
-===================================================== */
-
-.profileHero {
-
-    text-align: center;
-
-    padding: 10px 0 25px;
-
-}
-
-
-.profileAvatar {
-
-    width: 78px;
-    height: 78px;
-
-    margin: 0 auto 12px;
-
-    border-radius: 50%;
-
-    background:
-        rgba(255,255,255,0.1);
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    font-size: 34px;
-
-}
-
-
-.profileUsername {
-
-    font-size: 22px;
-
-    font-weight: bold;
-
-}
-
-
-.profileLevel {
-
-    margin-top: 5px;
-
-    font-size: 12px;
-
-    opacity: 0.55;
-
-    letter-spacing: 2px;
-
-}
-
-
-.statsGrid {
-
-    display: grid;
-
-    grid-template-columns:
-        1fr 1fr;
-
-    gap: 10px;
-
-}
-
-
-.statCard {
-
-    background:
-        rgba(255,255,255,0.08);
-
-    border-radius: 15px;
-
-    padding: 18px 12px;
-
-    text-align: center;
-
-}
-
-
-.statValue {
-
-    font-size: 20px;
-
-    font-weight: bold;
-
-}
-
-
-.statLabel {
-
-    margin-top: 6px;
-
-    font-size: 10px;
-
-    opacity: 0.55;
-
-    letter-spacing: 0.5px;
-
-}
-
-
-/* =====================================================
-   SETTINGS
-===================================================== */
-
-.settingsSection {
-
-    background:
-        rgba(255,255,255,0.06);
-
-    border-radius: 15px;
-
-    padding: 16px;
-
-    margin-bottom: 12px;
-
-}
-
-
-.settingsLabel {
-
-    font-size: 11px;
-
-    opacity: 0.55;
-
-    text-transform: uppercase;
-
-    letter-spacing: 1px;
-
-    margin-bottom: 8px;
-
-}
-
-
-.settingsInput {
-
-    width: 100%;
-
-    box-sizing: border-box;
-
-    border: none;
-
-    outline: none;
-
-    background:
-        rgba(255,255,255,0.1);
-
-    color: white;
-
-    padding: 13px;
-
-    border-radius: 11px;
-
-    font-size: 15px;
-
-}
-
-
-.settingsAction {
-
-    width: 100%;
-
-    border: none;
-
-    background:
-        rgba(255,255,255,0.13);
-
-    color: white;
-
-    padding: 13px;
-
-    border-radius: 11px;
-
-    font-size: 13px;
-
-    font-weight: bold;
-
-    margin-top: 10px;
-
-}
-
-
-.settingsInfo {
-
-    font-size: 12px;
-
-    line-height: 1.5;
-
-    opacity: 0.55;
 
 }
 
@@ -845,7 +577,6 @@ body {
 
 }
 
-
 .discoveryPopupCard {
 
     width: 100%;
@@ -863,16 +594,12 @@ body {
 
     text-align: center;
 
+    font-family: Arial, sans-serif;
+
     box-shadow:
         0 12px 40px rgba(0,0,0,0.7);
 
-    animation:
-        discoveryPopupIn
-        0.25s
-        ease-out;
-
 }
-
 
 .discoveryIcon {
 
@@ -881,7 +608,6 @@ body {
     margin-bottom: 10px;
 
 }
-
 
 .discoveryPopupTitle {
 
@@ -895,7 +621,6 @@ body {
 
 }
 
-
 .discoveryPopupName {
 
     font-size: 25px;
@@ -905,7 +630,6 @@ body {
     margin-top: 8px;
 
 }
-
 
 .discoveryPopupDescription {
 
@@ -919,7 +643,6 @@ body {
 
 }
 
-
 .discoveryPopupReward {
 
     font-size: 22px;
@@ -929,7 +652,6 @@ body {
     margin-top: 20px;
 
 }
-
 
 .discoveryOKButton {
 
@@ -956,57 +678,234 @@ body {
 
 
 /* =====================================================
-   ANIMATION
+   PROGRESS
 ===================================================== */
 
-@keyframes discoveryPopupIn {
+.progressLevel {
 
-    from {
+    text-align: center;
 
-        opacity: 0;
+    margin-top: 5px;
 
-        transform:
-            scale(0.94);
+    margin-bottom: 25px;
 
-    }
+}
 
-    to {
+.progressLevelNumber {
 
-        opacity: 1;
+    font-size: 38px;
 
-        transform:
-            scale(1);
+    font-weight: bold;
 
-    }
+}
+
+.progressLevelLabel {
+
+    font-size: 12px;
+
+    opacity: 0.55;
+
+    letter-spacing: 2px;
+
+    margin-top: 3px;
+
+}
+
+.progressXPCard {
+
+    background:
+        rgba(255,255,255,0.08);
+
+    border-radius: 16px;
+
+    padding: 18px;
+
+    margin-bottom: 12px;
+
+}
+
+.progressXPTop {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    font-size: 14px;
+
+    font-weight: bold;
+
+}
+
+.progressXPCurrent {
+
+    opacity: 0.8;
+
+}
+
+.progressXPNext {
+
+    opacity: 0.55;
+
+}
+
+.progressBarBackground {
+
+    width: 100%;
+
+    height: 12px;
+
+    background:
+        rgba(255,255,255,0.10);
+
+    border-radius: 20px;
+
+    margin-top: 14px;
+
+    overflow: hidden;
+
+}
+
+.progressBarFill {
+
+    height: 100%;
+
+    width: 0%;
+
+    background: white;
+
+    border-radius: 20px;
+
+    transition:
+        width 0.4s ease;
+
+}
+
+.progressXPNeeded {
+
+    text-align: center;
+
+    margin-top: 10px;
+
+    font-size: 12px;
+
+    opacity: 0.6;
+
+}
+
+.progressStats {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 10px;
+
+    margin-top: 12px;
+
+}
+
+.progressStat {
+
+    background:
+        rgba(255,255,255,0.08);
+
+    border-radius: 14px;
+
+    padding: 18px 12px;
+
+    text-align: center;
+
+}
+
+.progressStatValue {
+
+    font-size: 21px;
+
+    font-weight: bold;
+
+}
+
+.progressStatLabel {
+
+    margin-top: 6px;
+
+    font-size: 11px;
+
+    opacity: 0.55;
+
+}
+
+.nextLevelCard {
+
+    margin-top: 12px;
+
+    background:
+        rgba(255,255,255,0.05);
+
+    border-radius: 14px;
+
+    padding: 16px;
+
+    text-align: center;
+
+}
+
+.nextLevelTitle {
+
+    font-size: 12px;
+
+    opacity: 0.55;
+
+    letter-spacing: 1px;
+
+}
+
+.nextLevelValue {
+
+    font-size: 20px;
+
+    font-weight: bold;
+
+    margin-top: 6px;
 
 }
 
 
 /* =====================================================
-   MOBILE ADJUSTMENTS
+   SETTINGS
 ===================================================== */
 
-@media (max-width: 380px) {
+.settingsItem {
 
-    .playerHUD {
+    background:
+        rgba(255,255,255,0.08);
 
-        min-width: 135px;
+    border-radius: 14px;
 
-    }
+    padding: 16px;
 
-    .hudButton {
+    margin-bottom: 10px;
 
-        width: 44px;
-        height: 44px;
+}
 
-    }
+.settingsTitle {
 
-    .settingsButton {
+    font-weight: bold;
 
-        width: 44px;
-        height: 44px;
+    font-size: 15px;
 
-    }
+}
+
+.settingsDescription {
+
+    font-size: 12px;
+
+    opacity: 0.6;
+
+    margin-top: 6px;
+
+    line-height: 1.4;
 
 }
 
@@ -1024,53 +923,57 @@ body {
 
 <div id="gameHUD">
 
+    <div class="hudTop">
 
-    <div
-        class="playerHUD"
-        onclick="showProgress()"
-    >
+        <div class="hudIdentity">
 
-        <div class="usernameRow">
-
-            <span id="hudUsername">
-                PLAYER
-            </span>
-
-            <span class="usernameArrow">
-                ›
-            </span>
-
-        </div>
-
-
-        <div
-            class="levelRow"
-            id="playerLevel"
-        >
-            LEVEL 1
-        </div>
-
-
-        <div class="xpBarBackground">
+            <div class="username">
+                EXPLORER
+            </div>
 
             <div
-                class="xpBarFill"
-                id="hudXPBar"
-            ></div>
+                class="levelText"
+                id="playerLevel"
+            >
+                LEVEL 1
+            </div>
 
         </div>
 
-    </div>
+
+        <div class="hudXP">
+
+            <div
+                class="xpBarBackground"
+            >
+
+                <div
+                    class="xpBarFill"
+                    id="hudXPBar"
+                ></div>
+
+            </div>
+
+        </div>
 
 
-    <div class="topButtons">
+        <div class="hudButtons">
 
-        <button
-            class="hudButton"
-            onclick="showDiscoveries()"
-        >
-            🔎
-        </button>
+            <button
+                class="hudButton"
+                onclick="showProgress()"
+            >
+                📊
+            </button>
+
+            <button
+                class="hudButton"
+                onclick="showDiscoveries()"
+            >
+                🔎
+            </button>
+
+        </div>
 
     </div>
 
@@ -1089,9 +992,7 @@ body {
 ===================================================== -->
 
 <div id="status">
-
     UNLOCKED — WAITING FOR GPS...
-
 </div>
 
 
@@ -1101,43 +1002,23 @@ body {
 
 <div id="bottomHUD">
 
-
-    <div class="locationCard">
-
-        <div
-            class="locationName"
-            id="locationName"
-        >
-            LOCATING...
-        </div>
-
-
-        <div class="locationMeta">
-
-            <span>
-                DISCOVERED
-            </span>
-
-            <span
-                class="locationPercent"
-                id="locationPercent"
-            >
-                0%
-            </span>
-
-        </div>
-
+    <div id="locationDisplay">
+        📍 Locating...
     </div>
 
-
-    <button
-        class="settingsButton"
-        onclick="showSettings()"
-    >
-        ⚙️
-    </button>
+    <div id="percentageDisplay">
+        0.00% DISCOVERED
+    </div>
 
 </div>
+
+
+<button
+    id="settingsButton"
+    onclick="showSettings()"
+>
+    ⚙️
+</button>
 
 
 <!-- =====================================================
@@ -1157,7 +1038,7 @@ body {
 
         <button
             class="closePanel"
-            onclick="closePanels()"
+            onclick="closeDiscoveries()"
         >
             ✕
         </button>
@@ -1227,7 +1108,7 @@ body {
 
 
 <!-- =====================================================
-     PROFILE / STATS PANEL
+     PROGRESS PANEL
 ===================================================== -->
 
 <div
@@ -1238,12 +1119,12 @@ body {
     <div class="panelHeader">
 
         <h2>
-            👤 PROFILE
+            📊 PROGRESS
         </h2>
 
         <button
             class="closePanel"
-            onclick="closePanels()"
+            onclick="closeProgress()"
         >
             ✕
         </button>
@@ -1251,127 +1132,142 @@ body {
     </div>
 
 
-    <div class="profileHero">
-
-        <div class="profileAvatar">
-            👤
-        </div>
-
+    <div class="progressLevel">
 
         <div
-            class="profileUsername"
-            id="profileUsername"
-        >
-            PLAYER
-        </div>
-
-
-        <div
-            class="profileLevel"
-            id="profileLevel"
+            class="progressLevelNumber"
+            id="progressLevelNumber"
         >
             LEVEL 1
+        </div>
+
+        <div class="progressLevelLabel">
+            CURRENT LEVEL
         </div>
 
     </div>
 
 
-    <div class="statsGrid">
+    <div class="progressXPCard">
 
+        <div class="progressXPTop">
 
-        <div class="statCard">
-
-            <div
-                class="statValue"
-                id="progressXP"
+            <span
+                class="progressXPCurrent"
+                id="progressXPCurrent"
             >
-                0
-            </div>
+                0 XP
+            </span>
 
-            <div class="statLabel">
-                TOTAL XP
-            </div>
+            <span
+                class="progressXPNext"
+                id="progressXPNext"
+            >
+                750 XP
+            </span>
 
         </div>
 
 
-        <div class="statCard">
+        <div class="progressBarBackground">
 
             <div
-                class="statValue"
+                class="progressBarFill"
+                id="progressBarFill"
+            ></div>
+
+        </div>
+
+
+        <div
+            class="progressXPNeeded"
+            id="progressXPNeeded"
+        >
+            750 XP to Level 2
+        </div>
+
+    </div>
+
+
+    <div class="progressStats">
+
+        <div class="progressStat">
+
+            <div
+                class="progressStatValue"
                 id="progressLand"
             >
                 0 m²
             </div>
 
-            <div class="statLabel">
+            <div class="progressStatLabel">
                 LAND UNLOCKED
             </div>
 
         </div>
 
 
-        <div class="statCard">
+        <div class="progressStat">
 
             <div
-                class="statValue"
+                class="progressStatValue"
                 id="progressCells"
             >
                 0
             </div>
 
-            <div class="statLabel">
+            <div class="progressStatLabel">
                 GRID CELLS
             </div>
 
         </div>
 
 
-        <div class="statCard">
+        <div class="progressStat">
 
             <div
-                class="statValue"
+                class="progressStatValue"
                 id="progressDiscoveries"
             >
                 0
             </div>
 
-            <div class="statLabel">
+            <div class="progressStatLabel">
                 DISCOVERIES
             </div>
 
         </div>
 
 
-        <div class="statCard">
+        <div class="progressStat">
 
             <div
-                class="statValue"
+                class="progressStatValue"
                 id="progressDiscoveryXP"
             >
-                0
+                0 XP
             </div>
 
-            <div class="statLabel">
+            <div class="progressStatLabel">
                 DISCOVERY XP
             </div>
 
         </div>
 
+    </div>
 
-        <div class="statCard">
 
-            <div
-                class="statValue"
-                id="progressNextLevel"
-            >
-                750
-            </div>
+    <div class="nextLevelCard">
 
-            <div class="statLabel">
-                NEXT LEVEL XP
-            </div>
+        <div class="nextLevelTitle">
+            NEXT MILESTONE
+        </div>
 
+        <div
+            class="nextLevelValue"
+            id="nextLevelValue"
+        >
+            LEVEL 2
         </div>
 
     </div>
@@ -1396,7 +1292,7 @@ body {
 
         <button
             class="closePanel"
-            onclick="closePanels()"
+            onclick="closeSettings()"
         >
             ✕
         </button>
@@ -1404,70 +1300,44 @@ body {
     </div>
 
 
-    <div class="settingsSection">
+    <div class="settingsItem">
 
-        <div class="settingsLabel">
-            Username
+        <div class="settingsTitle">
+            🚶 Walking Exploration
         </div>
 
-
-        <input
-            id="usernameInput"
-            class="settingsInput"
-            type="text"
-            maxlength="20"
-            placeholder="Enter username"
-        />
-
-
-        <button
-            class="settingsAction"
-            onclick="saveUsername()"
-        >
-            SAVE USERNAME
-        </button>
-
-    </div>
-
-
-    <div class="settingsSection">
-
-        <div class="settingsLabel">
-            UNLOCKED
-        </div>
-
-
-        <div class="settingsInfo">
-
-            Explore the real world on foot.
-
-            <br><br>
-
-            Newly discovered land earns XP.
-
-            <br><br>
-
-            Re-exploring land you've already unlocked
-            earns no XP.
-
+        <div class="settingsDescription">
+            UNLOCKED currently only rewards exploration
+            when movement is detected as walking.
         </div>
 
     </div>
 
 
-    <div class="settingsSection">
+    <div class="settingsItem">
 
-        <div class="settingsLabel">
-            Safety
+        <div class="settingsTitle">
+            🗺️ Exploration Grid
         </div>
 
+        <div class="settingsDescription">
+            Exploration is recorded using permanent
+            5m × 5m grid cells.
+        </div>
 
-        <div class="settingsInfo">
+    </div>
 
-            Never use UNLOCKED while driving.
 
-            Exploration is designed for walking.
+    <div class="settingsItem">
 
+        <div class="settingsTitle">
+            ⚠️ Safety
+        </div>
+
+        <div class="settingsDescription">
+            Never interact with UNLOCKED while driving
+            or when doing so would distract you from
+            your surroundings.
         </div>
 
     </div>
@@ -1487,11 +1357,9 @@ body {
             🔎
         </div>
 
-
         <div class="discoveryPopupTitle">
             DISCOVERY FOUND!
         </div>
-
 
         <div
             class="discoveryPopupName"
@@ -1500,7 +1368,6 @@ body {
             The First Discovery
         </div>
 
-
         <div
             class="discoveryPopupDescription"
             id="popupDiscoveryDescription"
@@ -1508,14 +1375,12 @@ body {
             You found your first UNLOCKED discovery.
         </div>
 
-
         <div
             class="discoveryPopupReward"
             id="popupDiscoveryXP"
         >
             ⭐ +100 XP
         </div>
-
 
         <button
             class="discoveryOKButton"
@@ -1545,11 +1410,8 @@ const map =
 
 
 map.setView(
-
     [52.6083, 1.7305],
-
     13
-
 );
 
 
@@ -1566,7 +1428,8 @@ L.tileLayer(
         attribution:
             '&copy; OpenStreetMap contributors',
 
-        maxZoom: 19
+        maxZoom:
+            19
 
     }
 
@@ -1578,10 +1441,7 @@ L.tileLayer(
 ===================================================== */
 
 const playerPane =
-    map.createPane(
-        'playerPane'
-    );
-
+    map.createPane('playerPane');
 
 playerPane.style.zIndex =
     650;
@@ -1646,11 +1506,6 @@ let acceptedTime =
 let hasAcceptedGPS =
     false;
 
-
-/* =====================================================
-   GPS STABILITY
-===================================================== */
-
 let gpsStableSince =
     null;
 
@@ -1680,39 +1535,6 @@ let playerXP = parseInt(
 
 
 /* =====================================================
-   USERNAME
-===================================================== */
-
-let username =
-
-    localStorage.getItem(
-        'unlockedUsername'
-    ) || 'PLAYER';
-
-
-function updateUsernameUI() {
-
-    document.getElementById(
-        'hudUsername'
-    ).textContent =
-        username;
-
-
-    document.getElementById(
-        'profileUsername'
-    ).textContent =
-        username;
-
-
-    document.getElementById(
-        'usernameInput'
-    ).value =
-        username;
-
-}
-
-
-/* =====================================================
    LEVEL SYSTEM
 ===================================================== */
 
@@ -1724,7 +1546,6 @@ function getPlayerLevel() {
     let totalXP =
         0;
 
-
     while (
 
         totalXP +
@@ -1733,9 +1554,7 @@ function getPlayerLevel() {
             level *
             level
         )
-
         <=
-
         playerXP
 
     ) {
@@ -1749,7 +1568,6 @@ function getPlayerLevel() {
 
     }
 
-
     return level;
 
 }
@@ -1762,15 +1580,10 @@ function getTotalXPRequiredForLevel(
     let total =
         0;
 
-
     for (
-
         let i = 1;
-
         i < level;
-
         i++
-
     ) {
 
         total +=
@@ -1779,7 +1592,6 @@ function getTotalXPRequiredForLevel(
             i;
 
     }
-
 
     return total;
 
@@ -1791,11 +1603,9 @@ function getXPForNextLevel(
 ) {
 
     return (
-
         750 *
         level *
         level
-
     );
 
 }
@@ -1810,13 +1620,10 @@ function updatePlayerHUD() {
     const level =
         getPlayerLevel();
 
-
     document.getElementById(
         'playerLevel'
     ).textContent =
-
-        'LEVEL ' +
-        level;
+        'LEVEL ' + level;
 
 
     const levelStartXP =
@@ -1824,52 +1631,34 @@ function updatePlayerHUD() {
             level
         );
 
-
     const nextLevelXP =
         getXPForNextLevel(
             level
         );
 
-
     const currentLevelXP =
         playerXP -
         levelStartXP;
 
+    const percent =
 
-    const percentage =
-
-        level >= 100
-
-            ? 100
-
-            :
-
-            Math.min(
-
-                100,
-
-                Math.max(
-
-                    0,
-
-                    (
-                        currentLevelXP /
-                        nextLevelXP
-                    ) *
-
-                    100
-
-                )
-
-            );
+        Math.min(
+            100,
+            Math.max(
+                0,
+                (
+                    currentLevelXP /
+                    nextLevelXP
+                ) *
+                100
+            )
+        );
 
 
     document.getElementById(
         'hudXPBar'
     ).style.width =
-
-        percentage +
-        '%';
+        percent + '%';
 
 }
 
@@ -1885,19 +1674,12 @@ function awardXP(
     playerXP +=
         amount;
 
-
     localStorage.setItem(
-
         'unlockedPlayerXP',
-
         playerXP
-
     );
 
-
     updatePlayerHUD();
-
-    updateProgressPanel();
 
 }
 
@@ -1909,7 +1691,6 @@ function awardXP(
 let exploredGridCells =
     [];
 
-
 try {
 
     exploredGridCells =
@@ -1920,7 +1701,6 @@ try {
             ) || '[]'
 
         );
-
 
     if (
         !Array.isArray(
@@ -1948,7 +1728,7 @@ catch (error) {
 
 
 /* =====================================================
-   EARTH COORDINATES
+   EARTH CONVERSION
 ===================================================== */
 
 const EARTH_RADIUS =
@@ -2007,9 +1787,7 @@ function metresToLatLng(
             x /
             EARTH_RADIUS
         )
-
         *
-
         180 /
         Math.PI;
 
@@ -2018,24 +1796,16 @@ function metresToLatLng(
 
         (
             2 *
-
             Math.atan(
-
                 Math.exp(
                     y /
                     EARTH_RADIUS
                 )
-
             )
-
             -
-
             Math.PI / 2
-
         )
-
         *
-
         180 /
         Math.PI;
 
@@ -2047,6 +1817,10 @@ function metresToLatLng(
 
 }
 
+
+/* =====================================================
+   GRID CELL
+===================================================== */
 
 function getGridCell(
     lat,
@@ -2182,10 +1956,8 @@ function distancePointToCell(
 
 
     return Math.sqrt(
-
         dx * dx +
         dy * dy
-
     );
 
 }
@@ -2413,24 +2185,17 @@ function unlockWalkingCorridor(
     ) {
 
         const ratio =
-            i /
-            samples;
+            i / samples;
 
 
         const x =
             start.x +
-            (
-                dx *
-                ratio
-            );
+            dx * ratio;
 
 
         const y =
             start.y +
-            (
-                dy *
-                ratio
-            );
+            dy * ratio;
 
 
         const position =
@@ -2459,7 +2224,6 @@ function unlockWalkingCorridor(
         document.getElementById(
             'status'
         ).textContent =
-
             'UNLOCKED — AREA ALREADY EXPLORED';
 
     }
@@ -2467,16 +2231,11 @@ function unlockWalkingCorridor(
 
     drawFog();
 
-    updateLocalDiscoveryPercentage(
-        endLat,
-        endLng
-    );
-
 }
 
 
 /* =====================================================
-   FOG
+   FOG CANVAS
 ===================================================== */
 
 const fogCanvas =
@@ -2504,7 +2263,7 @@ fogCanvas.style.pointerEvents =
     'none';
 
 fogCanvas.style.zIndex =
-    400;
+    '400';
 
 
 map.getContainer()
@@ -2518,6 +2277,10 @@ const fogContext =
         '2d'
     );
 
+
+/* =====================================================
+   RESIZE FOG
+===================================================== */
 
 function resizeFog() {
 
@@ -2552,7 +2315,6 @@ window.addEventListener(
     resizeFog
 );
 
-
 map.on(
     'resize',
     resizeFog
@@ -2560,148 +2322,7 @@ map.on(
 
 
 /* =====================================================
-   TEMPORARY PLAYER REVEAL
-===================================================== */
-
-function getRadiusPixels(
-    point
-) {
-
-    const here =
-        map.containerPointToLatLng(
-            L.point(
-                point.x,
-                point.y
-            )
-        );
-
-
-    const onePixel =
-        map.containerPointToLatLng(
-            L.point(
-                point.x + 1,
-                point.y
-            )
-        );
-
-
-    const metresPerPixel =
-        map.distance(
-            here,
-            onePixel
-        );
-
-
-    if (
-        !isFinite(
-            metresPerPixel
-        ) ||
-        metresPerPixel <= 0
-    ) {
-
-        return 0;
-
-    }
-
-
-    return (
-        revealRadius /
-        metresPerPixel
-    );
-
-}
-
-
-function revealCircle(
-    lat,
-    lng
-) {
-
-    const point =
-        map.latLngToContainerPoint(
-            L.latLng(
-                lat,
-                lng
-            )
-        );
-
-
-    const radiusPixels =
-        getRadiusPixels(
-            point
-        );
-
-
-    if (
-        radiusPixels <= 0
-    ) {
-
-        return;
-
-    }
-
-
-    const gradient =
-        fogContext.createRadialGradient(
-
-            point.x,
-            point.y,
-
-            radiusPixels * 0.70,
-
-            point.x,
-            point.y,
-
-            radiusPixels
-
-        );
-
-
-    gradient.addColorStop(
-        0,
-        'rgba(0,0,0,1)'
-    );
-
-
-    gradient.addColorStop(
-        0.85,
-        'rgba(0,0,0,1)'
-    );
-
-
-    gradient.addColorStop(
-        1,
-        'rgba(0,0,0,0)'
-    );
-
-
-    fogContext.fillStyle =
-        gradient;
-
-
-    fogContext.beginPath();
-
-
-    fogContext.arc(
-
-        point.x,
-        point.y,
-
-        radiusPixels,
-
-        0,
-        Math.PI * 2
-
-    );
-
-
-    fogContext.fill();
-
-}
-
-
-/* =====================================================
-   DRAW FOG
+   DRAW FOG — FIXED VERSION
 ===================================================== */
 
 function drawFog() {
@@ -2718,6 +2339,18 @@ function drawFog() {
         return;
 
     }
+
+
+    /*
+       IMPORTANT:
+
+       Always completely redraw the fog first.
+       Then cut out every explored grid cell.
+
+       This makes the permanent explored area
+       visible again even after map movement,
+       zooming or GPS updates.
+    */
 
 
     fogContext.globalCompositeOperation =
@@ -2750,14 +2383,22 @@ function drawFog() {
     );
 
 
+    /*
+       Remove the fog over explored cells.
+    */
+
     fogContext.globalCompositeOperation =
         'destination-out';
 
 
     for (
+
         let i = 0;
+
         i < exploredGridCells.length;
+
         i++
+
     ) {
 
         const parts =
@@ -2766,13 +2407,13 @@ function drawFog() {
 
 
         const cellX =
-            parseInt(
+            Number(
                 parts[0]
             );
 
 
         const cellY =
-            parseInt(
+            Number(
                 parts[1]
             );
 
@@ -2843,21 +2484,172 @@ function drawFog() {
             );
 
 
+        const width =
+            bottomRight.x -
+            topLeft.x;
+
+
+        const height =
+            bottomRight.y -
+            topLeft.y;
+
+
+        /*
+           Only draw cells that are actually
+           on screen.
+        */
+
+        if (
+
+            bottomRight.x < 0 ||
+            topLeft.x > size.x ||
+            bottomRight.y < 0 ||
+            topLeft.y > size.y
+
+        ) {
+
+            continue;
+
+        }
+
+
         fogContext.fillRect(
 
             topLeft.x,
 
             topLeft.y,
 
-            bottomRight.x -
-            topLeft.x,
+            width,
 
-            bottomRight.y -
-            topLeft.y
+            height
 
         );
 
     }
+
+
+    fogContext.globalCompositeOperation =
+        'source-over';
+
+
+    /*
+       Draw the temporary small reveal around
+       the player separately.
+    */
+
+    if (
+        acceptedLat !== null &&
+        acceptedLng !== null
+    ) {
+
+        revealCircle(
+
+            acceptedLat,
+            acceptedLng
+
+        );
+
+    }
+
+}
+
+
+/* =====================================================
+   TEMPORARY PLAYER REVEAL
+===================================================== */
+
+function revealCircle(
+
+    lat,
+    lng
+
+) {
+
+    const point =
+        map.latLngToContainerPoint(
+
+            L.latLng(
+                lat,
+                lng
+            )
+
+        );
+
+
+    const here =
+        map.containerPointToLatLng(
+            L.point(
+                point.x,
+                point.y
+            )
+        );
+
+
+    const onePixel =
+        map.containerPointToLatLng(
+
+            L.point(
+                point.x + 1,
+                point.y
+            )
+
+        );
+
+
+    const metresPerPixel =
+        map.distance(
+            here,
+            onePixel
+        );
+
+
+    if (
+        !isFinite(
+            metresPerPixel
+        ) ||
+        metresPerPixel <= 0
+    ) {
+
+        return;
+
+    }
+
+
+    const radiusPixels =
+        revealRadius /
+        metresPerPixel;
+
+
+    if (
+        radiusPixels <= 0
+    ) {
+
+        return;
+
+    }
+
+
+    fogContext.globalCompositeOperation =
+        'destination-out';
+
+
+    fogContext.beginPath();
+
+
+    fogContext.arc(
+
+        point.x,
+        point.y,
+
+        radiusPixels,
+
+        0,
+        Math.PI * 2
+
+    );
+
+
+    fogContext.fill();
 
 
     fogContext.globalCompositeOperation =
@@ -2920,7 +2712,7 @@ let firstGPSFix =
 
 
 /* =====================================================
-   LOCATION FOUND
+   GPS FOUND
 ===================================================== */
 
 map.on(
@@ -2932,18 +2724,14 @@ map.on(
         const gpsLat =
             e.latlng.lat;
 
-
         const gpsLng =
             e.latlng.lng;
-
 
         const accuracy =
             e.accuracy;
 
-
         const gpsSpeed =
             e.speed;
-
 
         const gpsTimestamp =
             e.timestamp ||
@@ -2963,8 +2751,19 @@ map.on(
         );
 
 
+        /*
+           Update location display.
+        */
+
+        updateLocationName(
+            gpsLat,
+            gpsLng
+        );
+
+
         if (
-            accuracy > maxGPSAccuracy
+            accuracy >
+            maxGPSAccuracy
         ) {
 
             document.getElementById(
@@ -3006,7 +2805,6 @@ map.on(
 
             vehicleDetected =
                 false;
-
 
             vehicleSamples =
                 0;
@@ -3078,18 +2876,6 @@ map.on(
                 ).addTo(map);
 
 
-            updateLocationName(
-                gpsLat,
-                gpsLng
-            );
-
-
-            updateLocalDiscoveryPercentage(
-                gpsLat,
-                gpsLng
-            );
-
-
             drawFog();
 
             return;
@@ -3098,7 +2884,6 @@ map.on(
 
 
         const movement =
-
             distanceMetres(
 
                 acceptedLat,
@@ -3125,7 +2910,6 @@ map.on(
 
 
         const calculatedSpeed =
-
             movement /
             elapsedSeconds;
 
@@ -3149,12 +2933,18 @@ map.on(
 
             effectiveSpeed =
                 Math.max(
+
                     calculatedSpeed,
                     gpsSpeed
+
                 );
 
         }
 
+
+        /*
+           VEHICLE CHECK
+        */
 
         if (
 
@@ -3202,6 +2992,8 @@ map.on(
             }
 
 
+            drawFog();
+
             return;
 
         }
@@ -3244,6 +3036,8 @@ map.on(
             }
 
 
+            drawFog();
+
             return;
 
         }
@@ -3259,6 +3053,10 @@ map.on(
 
         }
 
+
+        /*
+           GPS STABILISING
+        */
 
         if (
 
@@ -3292,14 +3090,19 @@ map.on(
             document.getElementById(
                 'status'
             ).textContent =
-
                 'UNLOCKED — GPS STABILISING';
 
+
+            drawFog();
 
             return;
 
         }
 
+
+        /*
+           TOO LITTLE MOVEMENT
+        */
 
         if (
             movement <
@@ -3314,10 +3117,17 @@ map.on(
 
             }
 
+
+            drawFog();
+
             return;
 
         }
 
+
+        /*
+           GPS JUMP
+        */
 
         if (
             movement >
@@ -3327,7 +3137,6 @@ map.on(
             document.getElementById(
                 'status'
             ).textContent =
-
                 'GPS SIGNAL — MOVEMENT CHECKING';
 
 
@@ -3339,10 +3148,17 @@ map.on(
 
             }
 
+
+            drawFog();
+
             return;
 
         }
 
+
+        /*
+           VEHICLE LOCK
+        */
 
         if (
             vehicleDetected
@@ -3365,10 +3181,16 @@ map.on(
                 gpsTimestamp;
 
 
+            drawFog();
+
             return;
 
         }
 
+
+        /*
+           ACCEPT WALKING MOVEMENT
+        */
 
         const previousLat =
             acceptedLat;
@@ -3418,16 +3240,7 @@ map.on(
         );
 
 
-        updateLocationName(
-            gpsLat,
-            gpsLng
-        );
-
-
-        updateLocalDiscoveryPercentage(
-            gpsLat,
-            gpsLng
-        );
+        updateDiscoveredPercentage();
 
 
         drawFog();
@@ -3461,9 +3274,7 @@ function distanceMetres(
             lat2 -
             lat1
         )
-
         *
-
         Math.PI /
         180;
 
@@ -3474,9 +3285,7 @@ function distanceMetres(
             lng2 -
             lng1
         )
-
         *
-
         Math.PI /
         180;
 
@@ -3530,6 +3339,150 @@ function distanceMetres(
 
 
 /* =====================================================
+   DISCOVERED PERCENTAGE
+===================================================== */
+
+function updateDiscoveredPercentage() {
+
+    /*
+       This is currently a prototype value.
+
+       Later we can replace this with the actual
+       town/city boundary area and calculate:
+
+       explored area ÷ town area × 100
+    */
+
+    const percentage =
+        exploredGridCells.length *
+        25 /
+        1000000 *
+        100;
+
+
+    document.getElementById(
+        'percentageDisplay'
+    ).textContent =
+
+        percentage.toFixed(2) +
+        '% DISCOVERED';
+
+}
+
+
+/* =====================================================
+   LOCATION NAME
+===================================================== */
+
+let lastLocationRequest =
+    0;
+
+
+function updateLocationName(
+    lat,
+    lng
+) {
+
+    /*
+       Prevent excessive requests.
+       We only ask for a new place name every
+       30 seconds.
+    */
+
+    const now =
+        Date.now();
+
+
+    if (
+        now -
+        lastLocationRequest <
+        30000
+    ) {
+
+        return;
+
+    }
+
+
+    lastLocationRequest =
+        now;
+
+
+    fetch(
+
+        'https://nominatim.openstreetmap.org/reverse?format=json&lat=' +
+        encodeURIComponent(lat) +
+        '&lon=' +
+        encodeURIComponent(lng) +
+        '&zoom=10&addressdetails=1',
+
+        {
+
+            headers: {
+
+                'Accept':
+                    'application/json'
+
+            }
+
+        }
+
+    )
+
+    .then(
+        response =>
+            response.json()
+    )
+
+    .then(
+        data => {
+
+            const address =
+                data.address ||
+                {};
+
+
+            const place =
+
+                address.city ||
+
+                address.town ||
+
+                address.village ||
+
+                address.hamlet ||
+
+                address.municipality ||
+
+                'Unknown location';
+
+
+            document.getElementById(
+                'locationDisplay'
+            ).textContent =
+
+                '📍 ' +
+                place;
+
+        }
+
+    )
+
+    .catch(
+        error => {
+
+            console.log(
+                'Location name unavailable:',
+                error
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
    GPS ERROR
 ===================================================== */
 
@@ -3538,12 +3491,6 @@ map.on(
     'locationerror',
 
     function(e) {
-
-        console.error(
-            'GPS ERROR:',
-            e
-        );
-
 
         document.getElementById(
             'status'
@@ -3558,54 +3505,10 @@ map.on(
 
 
 /* =====================================================
-   PANELS
+   PANEL CONTROL
 ===================================================== */
 
-function hideHUD() {
-
-    document.getElementById(
-        'gameHUD'
-    ).style.display =
-        'none';
-
-
-    document.getElementById(
-        'bottomHUD'
-    ).style.display =
-        'none';
-
-
-    document.getElementById(
-        'status'
-    ).style.display =
-        'none';
-
-}
-
-
-function showHUD() {
-
-    document.getElementById(
-        'gameHUD'
-    ).style.display =
-        'flex';
-
-
-    document.getElementById(
-        'bottomHUD'
-    ).style.display =
-        'flex';
-
-
-    document.getElementById(
-        'status'
-    ).style.display =
-        'block';
-
-}
-
-
-function closePanels() {
+function hideAllPanels() {
 
     document.getElementById(
         'discoveriesPanel'
@@ -3625,11 +3528,37 @@ function closePanels() {
         'none';
 
 
-    showHUD();
+    document.getElementById(
+        'status'
+    ).style.display =
+        'block';
 
+
+    document.getElementById(
+        'gameHUD'
+    ).style.display =
+        'block';
+
+
+    document.getElementById(
+        'bottomHUD'
+    ).style.display =
+        'flex';
+
+
+    document.getElementById(
+        'settingsButton'
+    ).style.display =
+        'block';
+
+}
+
+
+function showMap() {
+
+    hideAllPanels();
 
     setTimeout(
-
         function() {
 
             map.invalidateSize();
@@ -3637,9 +3566,7 @@ function closePanels() {
             drawFog();
 
         },
-
         50
-
     );
 
 }
@@ -3649,14 +3576,44 @@ function showDiscoveries() {
 
     updateDiscoveriesPanel();
 
-
-    hideHUD();
+    hideAllPanels();
 
 
     document.getElementById(
         'discoveriesPanel'
     ).style.display =
         'block';
+
+
+    document.getElementById(
+        'status'
+    ).style.display =
+        'none';
+
+
+    document.getElementById(
+        'gameHUD'
+    ).style.display =
+        'none';
+
+
+    document.getElementById(
+        'bottomHUD'
+    ).style.display =
+        'none';
+
+
+    document.getElementById(
+        'settingsButton'
+    ).style.display =
+        'none';
+
+}
+
+
+function closeDiscoveries() {
+
+    showMap();
 
 }
 
@@ -3665,8 +3622,7 @@ function showProgress() {
 
     updateProgressPanel();
 
-
-    hideHUD();
+    hideAllPanels();
 
 
     document.getElementById(
@@ -3674,21 +3630,80 @@ function showProgress() {
     ).style.display =
         'block';
 
+
+    document.getElementById(
+        'status'
+    ).style.display =
+        'none';
+
+
+    document.getElementById(
+        'gameHUD'
+    ).style.display =
+        'none';
+
+
+    document.getElementById(
+        'bottomHUD'
+    ).style.display =
+        'none';
+
+
+    document.getElementById(
+        'settingsButton'
+    ).style.display =
+        'none';
+
+}
+
+
+function closeProgress() {
+
+    showMap();
+
 }
 
 
 function showSettings() {
 
-    updateUsernameUI();
-
-
-    hideHUD();
+    hideAllPanels();
 
 
     document.getElementById(
         'settingsPanel'
     ).style.display =
         'block';
+
+
+    document.getElementById(
+        'status'
+    ).style.display =
+        'none';
+
+
+    document.getElementById(
+        'gameHUD'
+    ).style.display =
+        'none';
+
+
+    document.getElementById(
+        'bottomHUD'
+    ).style.display =
+        'none';
+
+
+    document.getElementById(
+        'settingsButton'
+    ).style.display =
+        'none';
+
+}
+
+
+function closeSettings() {
+
+    showMap();
 
 }
 
@@ -3697,7 +3712,8 @@ function showSettings() {
    DISCOVERY SYSTEM
 ===================================================== */
 
-let discoveries = [];
+let discoveries =
+    [];
 
 
 try {
@@ -3718,20 +3734,16 @@ try {
         )
     ) {
 
-        discoveries = [];
+        discoveries =
+            [];
 
     }
 
 }
 catch (error) {
 
-    console.error(
-        'Could not load discoveries:',
-        error
-    );
-
-
-    discoveries = [];
+    discoveries =
+        [];
 
 }
 
@@ -3764,7 +3776,7 @@ function getDiscoveryXP() {
 
 
 /* =====================================================
-   SAVE DISCOVERIES
+   SAVE
 ===================================================== */
 
 function saveDiscoveries() {
@@ -3783,7 +3795,7 @@ function saveDiscoveries() {
 
 
 /* =====================================================
-   DISCOVERY POPUP
+   POPUP
 ===================================================== */
 
 function showDiscoveryPopup(
@@ -3859,12 +3871,6 @@ function addDiscovery(
         alreadyDiscovered
     ) {
 
-        console.log(
-            'DISCOVERY ALREADY FOUND:',
-            name
-        );
-
-
         return false;
 
     }
@@ -3925,14 +3931,10 @@ function addDiscovery(
 
 function createTestDiscovery() {
 
-    const testID =
-        'test-discovery-001';
-
-
     const wasAdded =
         addDiscovery(
 
-            testID,
+            'test-discovery-001',
 
             'The First Discovery',
 
@@ -3952,7 +3954,6 @@ function createTestDiscovery() {
         document.getElementById(
             'status'
         ).textContent =
-
             '🔎 TEST DISCOVERY ALREADY FOUND';
 
     }
@@ -4018,7 +4019,8 @@ function updateDiscoveriesPanel() {
     }
 
 
-    list.innerHTML = '';
+    list.innerHTML =
+        '';
 
 
     discoveries
@@ -4071,7 +4073,7 @@ function updateDiscoveriesPanel() {
 
 
 /* =====================================================
-   PROFILE STATS
+   PROGRESS
 ===================================================== */
 
 function formatLandArea(
@@ -4079,14 +4081,14 @@ function formatLandArea(
 ) {
 
     if (
-        squareMetres >= 1000000
+        squareMetres >=
+        1000000
     ) {
 
         return (
 
             squareMetres /
             1000000
-
         ).toFixed(2) +
         ' km²';
 
@@ -4110,9 +4112,41 @@ function updateProgressPanel() {
         getPlayerLevel();
 
 
+    const levelStartXP =
+        getTotalXPRequiredForLevel(
+            level
+        );
+
+
     const nextLevelXP =
         getXPForNextLevel(
             level
+        );
+
+
+    const currentLevelXP =
+        playerXP -
+        levelStartXP;
+
+
+    const progressPercent =
+
+        Math.min(
+
+            100,
+
+            Math.max(
+
+                0,
+
+                (
+                    currentLevelXP /
+                    nextLevelXP
+                ) *
+                100
+
+            )
+
         );
 
 
@@ -4123,15 +4157,100 @@ function updateProgressPanel() {
         gridSize;
 
 
+    const discoveryCount =
+        discoveries.length;
+
+
+    const discoveryXP =
+        getDiscoveryXP();
+
+
     document.getElementById(
-        'progressXP'
+        'progressLevelNumber'
     ).textContent =
-        playerXP.toLocaleString();
+        'LEVEL ' + level;
+
+
+    document.getElementById(
+        'progressXPCurrent'
+    ).textContent =
+
+        playerXP.toLocaleString() +
+        ' XP';
+
+
+    document.getElementById(
+        'progressXPNext'
+    ).textContent =
+
+        nextLevelXP.toLocaleString() +
+        ' XP';
+
+
+    document.getElementById(
+        'progressBarFill'
+    ).style.width =
+        progressPercent + '%';
+
+
+    if (
+        level >= 100
+    ) {
+
+        document.getElementById(
+            'progressXPNeeded'
+        ).textContent =
+            'LEVEL 100 — GLOBAL EXPLORER';
+
+
+        document.getElementById(
+            'nextLevelValue'
+        ).textContent =
+            '🏆 MAX LEVEL';
+
+    }
+
+    else {
+
+        const remainingXP =
+
+            Math.max(
+
+                0,
+
+                nextLevelXP -
+                currentLevelXP
+
+            );
+
+
+        document.getElementById(
+            'progressXPNeeded'
+        ).textContent =
+
+            remainingXP.toLocaleString() +
+            ' XP to Level ' +
+            (
+                level + 1
+            );
+
+
+        document.getElementById(
+            'nextLevelValue'
+        ).textContent =
+
+            'LEVEL ' +
+            (
+                level + 1
+            );
+
+    }
 
 
     document.getElementById(
         'progressLand'
     ).textContent =
+
         formatLandArea(
             landUnlocked
         );
@@ -4140,6 +4259,7 @@ function updateProgressPanel() {
     document.getElementById(
         'progressCells'
     ).textContent =
+
         exploredGridCells.length
             .toLocaleString();
 
@@ -4147,398 +4267,15 @@ function updateProgressPanel() {
     document.getElementById(
         'progressDiscoveries'
     ).textContent =
-        discoveries.length;
+        discoveryCount;
 
 
     document.getElementById(
         'progressDiscoveryXP'
     ).textContent =
-        getDiscoveryXP()
-            .toLocaleString();
 
-
-    document.getElementById(
-        'progressLevel'
-    ).textContent =
-
-        'LEVEL ' +
-        level;
-
-
-    document.getElementById(
-        'profileLevel'
-    ).textContent =
-
-        'LEVEL ' +
-        level;
-
-
-    document.getElementById(
-        'progressNextLevel'
-    ).textContent =
-
-        level >= 100
-
-            ? 'MAX'
-
-            :
-
-            nextLevelXP
-                .toLocaleString();
-
-}
-
-
-/* =====================================================
-   USERNAME
-===================================================== */
-
-function saveUsername() {
-
-    const input =
-        document.getElementById(
-            'usernameInput'
-        );
-
-
-    const newName =
-        input.value.trim();
-
-
-    if (
-        newName.length === 0
-    ) {
-
-        username =
-            'PLAYER';
-
-    }
-
-    else {
-
-        username =
-            newName.substring(
-                0,
-                20
-            );
-
-    }
-
-
-    localStorage.setItem(
-
-        'unlockedUsername',
-
-        username
-
-    );
-
-
-    updateUsernameUI();
-
-
-    document.getElementById(
-        'status'
-    ).textContent =
-
-        'PROFILE UPDATED';
-
-
-    setTimeout(
-
-        function() {
-
-            document.getElementById(
-                'status'
-            ).textContent =
-
-                'UNLOCKED';
-
-        },
-
-        2000
-
-    );
-
-}
-
-
-/* =====================================================
-   LOCATION DETECTION
-===================================================== */
-
-let lastLocationLookup =
-    null;
-
-let currentLocationName =
-    'LOCATING...';
-
-
-function updateLocationName(
-    lat,
-    lng
-) {
-
-    if (
-        lastLocationLookup
-    ) {
-
-        const distance =
-
-            distanceMetres(
-
-                lastLocationLookup.lat,
-                lastLocationLookup.lng,
-
-                lat,
-                lng
-
-            );
-
-
-        if (
-            distance < 300
-        ) {
-
-            return;
-
-        }
-
-    }
-
-
-    lastLocationLookup = {
-
-        lat:
-            lat,
-
-        lng:
-            lng
-
-    };
-
-
-    fetch(
-
-        'https://nominatim.openstreetmap.org/reverse?' +
-
-        new URLSearchParams({
-
-            lat:
-                lat,
-
-            lon:
-                lng,
-
-            format:
-                'json',
-
-            zoom:
-                10,
-
-            addressdetails:
-                1
-
-        })
-
-    )
-
-    .then(
-        response =>
-            response.json()
-    )
-
-    .then(
-        data => {
-
-            const address =
-                data.address || {};
-
-
-            const place =
-
-                address.city ||
-
-                address.town ||
-
-                address.village ||
-
-                address.municipality ||
-
-                address.hamlet ||
-
-                'Unknown location';
-
-
-            currentLocationName =
-                place;
-
-
-            document.getElementById(
-                'locationName'
-            ).textContent =
-                place;
-
-
-            updateLocalDiscoveryPercentage(
-                lat,
-                lng
-            );
-
-        }
-
-    )
-
-    .catch(
-        error => {
-
-            console.error(
-                'Location lookup failed:',
-                error
-            );
-
-        }
-
-    );
-
-}
-
-
-/* =====================================================
-   LOCAL DISCOVERY PERCENTAGE
-===================================================== */
-
-/*
-   This is currently a prototype estimate.
-
-   We calculate the explored area around the player's
-   current position and display it as a local percentage.
-
-   The proper version will eventually use official
-   town/city boundaries so the percentage is mathematically
-   exact for each location.
-*/
-
-function updateLocalDiscoveryPercentage(
-    lat,
-    lng
-) {
-
-    if (
-        !isFinite(lat) ||
-        !isFinite(lng)
-    ) {
-
-        return;
-
-    }
-
-
-    const currentCell =
-        getGridCell(
-            lat,
-            lng
-        );
-
-
-    let nearbyCells =
-        0;
-
-
-    const localRadius =
-        1000;
-
-
-    const range =
-        Math.ceil(
-            localRadius /
-            gridSize
-        );
-
-
-    for (
-
-        let x =
-            currentCell.x -
-            range;
-
-        x <=
-            currentCell.x +
-            range;
-
-        x++
-
-    ) {
-
-        for (
-
-            let y =
-                currentCell.y -
-                range;
-
-            y <=
-                currentCell.y +
-                range;
-
-            y++
-
-        ) {
-
-            if (
-
-                exploredGridCells.includes(
-
-                    x +
-                    '_' +
-                    y
-
-                )
-
-            ) {
-
-                nearbyCells++;
-
-            }
-
-        }
-
-    }
-
-
-    const totalCells =
-
-        Math.PI *
-        Math.pow(
-
-            localRadius /
-            gridSize,
-
-            2
-
-        );
-
-
-    const percentage =
-
-        Math.min(
-
-            100,
-
-            (
-                nearbyCells /
-                totalCells
-            ) *
-            100
-
-        );
-
-
-    document.getElementById(
-        'locationPercent'
-    ).textContent =
-
-        percentage.toFixed(1) +
-        '%';
+        discoveryXP.toLocaleString() +
+        ' XP';
 
 }
 
@@ -4547,13 +4284,13 @@ function updateLocalDiscoveryPercentage(
    STARTUP
 ===================================================== */
 
-updateUsernameUI();
-
 updatePlayerHUD();
 
 updateDiscoveriesPanel();
 
 updateProgressPanel();
+
+updateDiscoveredPercentage();
 
 
 setTimeout(
