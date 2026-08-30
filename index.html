@@ -1555,28 +1555,41 @@ L.tileLayer(
 
 
 /* =====================================================
-   FOG PANE
+   FOG OVERLAY
 ===================================================== */
 
 /*
-   IMPORTANT:
+   Fog is a fixed screen overlay rather than
+   a Leaflet pane.
 
-   Fog is now a proper Leaflet pane.
-
-   This keeps the fog attached to the map
-   when the map moves or zooms.
-
-   HUD sits above it.
-
-   Player marker sits above it.
+   This prevents the fog canvas from moving
+   independently of the map when the map pans
+   or zooms.
 */
 
-const fogPane =
-    map.createPane('fogPane');
+const fogCanvas =
+    document.createElement('canvas');
 
-fogPane.style.zIndex = 500;
+fogCanvas.style.position = 'fixed';
 
-fogPane.style.pointerEvents = 'none';
+fogCanvas.style.left = '0';
+
+fogCanvas.style.top = '0';
+
+fogCanvas.style.width = '100%';
+
+fogCanvas.style.height = '100%';
+
+fogCanvas.style.zIndex = '4000';
+
+fogCanvas.style.pointerEvents = 'none';
+
+document.body.appendChild(
+    fogCanvas
+);
+
+const fogContext =
+    fogCanvas.getContext('2d');
 
 
 /* =====================================================
@@ -1586,7 +1599,15 @@ fogPane.style.pointerEvents = 'none';
 const playerPane =
     map.createPane('playerPane');
 
-playerPane.style.zIndex = 650;
+playerPane.style.zIndex = 4500;
+/* =====================================================
+   PLAYER PANE
+===================================================== */
+
+const playerPane =
+    map.createPane('playerPane');
+
+playerPane.style.zIndex = 4500;
 
 
 /* =====================================================
@@ -2338,45 +2359,6 @@ function unlockWalkingCorridor(
 }
 
 
-/* =====================================================
-   FOG CANVAS
-===================================================== */
-
-const fogCanvas =
-    document.createElement(
-        'canvas'
-    );
-
-
-fogCanvas.style.position =
-    'absolute';
-
-fogCanvas.style.left =
-    '0';
-
-fogCanvas.style.top =
-    '0';
-
-fogCanvas.style.width =
-    '100%';
-
-fogCanvas.style.height =
-    '100%';
-
-fogCanvas.style.pointerEvents =
-    'none';
-
-
-fogPane.appendChild(
-    fogCanvas
-);
-
-
-const fogContext =
-    fogCanvas.getContext(
-        '2d'
-    );
-
 
 /* =====================================================
    FOG RESIZE
@@ -2448,8 +2430,6 @@ map.on(
     'resize',
     resizeFog
 );
-
-
 /* =====================================================
    FOG DRAW
 ===================================================== */
