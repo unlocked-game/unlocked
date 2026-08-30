@@ -1559,37 +1559,56 @@ L.tileLayer(
 ===================================================== */
 
 /*
-   Fog is a fixed screen overlay rather than
-   a Leaflet pane.
+   IMPORTANT:
 
-   This prevents the fog canvas from moving
-   independently of the map when the map pans
-   or zooms.
+   Fog is deliberately NOT a Leaflet pane.
+
+   It is a fixed screen overlay.
+
+   Leaflet moves its map layers when the map
+   pans and zooms, but this canvas stays fixed
+   over the screen.
+
+   drawFog() converts the explored grid cells
+   into the current screen coordinates.
+
+   This prevents the fog from becoming detached
+   from the map during panning and zooming.
 */
 
 const fogCanvas =
     document.createElement('canvas');
 
-fogCanvas.style.position = 'fixed';
+fogCanvas.style.position =
+    'fixed';
 
-fogCanvas.style.left = '0';
+fogCanvas.style.left =
+    '0';
 
-fogCanvas.style.top = '0';
+fogCanvas.style.top =
+    '0';
 
-fogCanvas.style.width = '100%';
+fogCanvas.style.width =
+    '100%';
 
-fogCanvas.style.height = '100%';
+fogCanvas.style.height =
+    '100%';
 
-fogCanvas.style.zIndex = '4000';
+fogCanvas.style.zIndex =
+    '4000';
 
-fogCanvas.style.pointerEvents = 'none';
+fogCanvas.style.pointerEvents =
+    'none';
 
 document.body.appendChild(
     fogCanvas
 );
 
+
 const fogContext =
-    fogCanvas.getContext('2d');
+    fogCanvas.getContext(
+        '2d'
+    );
 
 
 /* =====================================================
@@ -1597,17 +1616,12 @@ const fogContext =
 ===================================================== */
 
 const playerPane =
-    map.createPane('playerPane');
+    map.createPane(
+        'playerPane'
+    );
 
-playerPane.style.zIndex = 4500;
-/* =====================================================
-   PLAYER PANE
-===================================================== */
-
-const playerPane =
-    map.createPane('playerPane');
-
-playerPane.style.zIndex = 4500;
+playerPane.style.zIndex =
+    4500;
 
 
 /* =====================================================
@@ -2019,6 +2033,7 @@ function distancePointToCell(
 
 
     const cellMaxX =
+
         (
             cellX + 1
         )
@@ -2359,7 +2374,6 @@ function unlockWalkingCorridor(
 }
 
 
-
 /* =====================================================
    FOG RESIZE
 ===================================================== */
@@ -2430,6 +2444,8 @@ map.on(
     'resize',
     resizeFog
 );
+
+
 /* =====================================================
    FOG DRAW
 ===================================================== */
@@ -2931,6 +2947,8 @@ function pointInsideGeoJSON(
     return false;
 
 }
+
+
 /* =====================================================
    GEOJSON BOUNDS
 ===================================================== */
@@ -3060,6 +3078,2420 @@ function getGeoJSONBounds(
     };
 
 }
+<!-- =====================================================
+     MAP
+===================================================== -->
+
+<div id="map"></div>
+
+
+<!-- =====================================================
+     STATUS
+===================================================== -->
+
+<div id="status">
+    UNLOCKED — WAITING FOR GPS...
+</div>
+
+
+<!-- =====================================================
+     BOTTOM HUD
+===================================================== -->
+
+<div id="bottomHUD">
+
+    <div class="locationCard">
+
+        <div class="locationLabel">
+            CURRENT AREA
+        </div>
+
+        <div
+            class="locationName"
+            id="currentLocation"
+        >
+            LOCATING...
+        </div>
+
+    </div>
+
+
+    <div class="explorationCard">
+
+        <div class="explorationLabel">
+            AREA EXPLORED
+        </div>
+
+        <div
+            class="explorationPercentage"
+            id="explorationPercentage"
+        >
+            0.00%
+        </div>
+
+    </div>
+
+
+    <button
+        class="settingsButton"
+        onclick="showSettings()"
+    >
+        ⚙️
+    </button>
+
+</div>
+
+
+<!-- =====================================================
+     DISCOVERIES PANEL
+===================================================== -->
+
+<div
+    id="discoveriesPanel"
+    class="gamePanel"
+>
+
+    <div class="panelHeader">
+
+        <h2>
+            🔎 DISCOVERIES
+        </h2>
+
+        <button
+            class="closePanel"
+            onclick="closeDiscoveries()"
+        >
+            ✕
+        </button>
+
+    </div>
+
+
+    <div class="discoveryStats">
+
+        <div class="discoveryStat">
+
+            <div
+                class="discoveryStatValue"
+                id="discoveryCount"
+            >
+                0
+            </div>
+
+            <div class="discoveryStatLabel">
+                DISCOVERIES
+            </div>
+
+        </div>
+
+
+        <div class="discoveryStat">
+
+            <div
+                class="discoveryStatValue"
+                id="discoveryXP"
+            >
+                0
+            </div>
+
+            <div class="discoveryStatLabel">
+                DISCOVERY XP
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div id="discoveryList">
+
+        <div class="noDiscoveries">
+
+            🔎 No discoveries yet.
+
+            <br><br>
+
+            Keep exploring the world.
+
+        </div>
+
+    </div>
+
+
+    <button
+        class="testDiscoveryButton"
+        onclick="createTestDiscovery()"
+    >
+        🧪 TEST DISCOVERY
+    </button>
+
+</div>
+
+
+<!-- =====================================================
+     PROGRESS PANEL
+===================================================== -->
+
+<div
+    id="progressPanel"
+    class="gamePanel"
+>
+
+    <div class="panelHeader">
+
+        <h2>
+            📊 STATS
+        </h2>
+
+        <button
+            class="closePanel"
+            onclick="closeProgress()"
+        >
+            ✕
+        </button>
+
+    </div>
+
+
+    <div class="progressLevel">
+
+        <div
+            class="progressLevelNumber"
+            id="progressLevelNumber"
+        >
+            LEVEL 1
+        </div>
+
+        <div class="progressLevelLabel">
+            CURRENT LEVEL
+        </div>
+
+    </div>
+
+
+    <div class="progressXPCard">
+
+        <div class="progressXPTop">
+
+            <span
+                class="progressXPCurrent"
+                id="progressXPCurrent"
+            >
+                0 XP
+            </span>
+
+            <span
+                class="progressXPNext"
+                id="progressXPNext"
+            >
+                750 XP
+            </span>
+
+        </div>
+
+
+        <div class="progressBarBackground">
+
+            <div
+                class="progressBarFill"
+                id="progressBarFill"
+            ></div>
+
+        </div>
+
+
+        <div
+            class="progressXPNeeded"
+            id="progressXPNeeded"
+        >
+            750 XP to Level 2
+        </div>
+
+    </div>
+
+
+    <div class="progressStats">
+
+        <div class="progressStat">
+
+            <div
+                class="progressStatValue"
+                id="progressLand"
+            >
+                0 m²
+            </div>
+
+            <div class="progressStatLabel">
+                LAND UNLOCKED
+            </div>
+
+        </div>
+
+
+        <div class="progressStat">
+
+            <div
+                class="progressStatValue"
+                id="progressCells"
+            >
+                0
+            </div>
+
+            <div class="progressStatLabel">
+                GRID CELLS
+            </div>
+
+        </div>
+
+
+        <div class="progressStat">
+
+            <div
+                class="progressStatValue"
+                id="progressDiscoveries"
+            >
+                0
+            </div>
+
+            <div class="progressStatLabel">
+                DISCOVERIES
+            </div>
+
+        </div>
+
+
+        <div class="progressStat">
+
+            <div
+                class="progressStatValue"
+                id="progressDiscoveryXP"
+            >
+                0 XP
+            </div>
+
+            <div class="progressStatLabel">
+                DISCOVERY XP
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="nextLevelCard">
+
+        <div class="nextLevelTitle">
+            NEXT MILESTONE
+        </div>
+
+        <div
+            class="nextLevelValue"
+            id="nextLevelValue"
+        >
+            LEVEL 2
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     SETTINGS PANEL
+===================================================== -->
+
+<div
+    id="settingsPanel"
+    class="gamePanel"
+>
+
+    <div class="panelHeader">
+
+        <h2>
+            ⚙️ SETTINGS
+        </h2>
+
+        <button
+            class="closePanel"
+            onclick="closeSettings()"
+        >
+            ✕
+        </button>
+
+    </div>
+
+
+    <div class="settingsItem">
+
+        <div class="settingsItemTitle">
+            👤 Profile
+        </div>
+
+        <div class="settingsItemText">
+            Your UNLOCKED profile and progression will live here.
+        </div>
+
+    </div>
+
+
+    <div class="settingsItem">
+
+        <div class="settingsItemTitle">
+            📍 Location
+        </div>
+
+        <div class="settingsItemText">
+            UNLOCKED uses your GPS position to track exploration.
+        </div>
+
+    </div>
+
+
+    <div class="settingsItem">
+
+        <div class="settingsItemTitle">
+            🚶 Walking Only
+        </div>
+
+        <div class="settingsItemText">
+            Exploration is designed to count walking movement only.
+            Vehicle-speed movement is automatically paused.
+        </div>
+
+    </div>
+
+
+    <div class="settingsItem">
+
+        <div class="settingsItemTitle">
+            💾 Local Progress
+        </div>
+
+        <div class="settingsItemText">
+            Your prototype progress is stored locally on this device.
+        </div>
+
+    </div>
+
+
+    <div class="settingsItem">
+
+        <div class="settingsItemTitle">
+            🛡️ Safety
+        </div>
+
+        <div class="settingsItemText">
+            Never interact with UNLOCKED while driving or operating
+            a vehicle.
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     DISCOVERY POPUP
+===================================================== -->
+
+<div id="discoveryPopup">
+
+    <div class="discoveryPopupCard">
+
+        <div class="discoveryIcon">
+            🔎
+        </div>
+
+        <div class="discoveryPopupTitle">
+            DISCOVERY FOUND!
+        </div>
+
+        <div
+            class="discoveryPopupName"
+            id="popupDiscoveryName"
+        >
+            The First Discovery
+        </div>
+
+        <div
+            class="discoveryPopupDescription"
+            id="popupDiscoveryDescription"
+        >
+            You found your first UNLOCKED discovery.
+        </div>
+
+        <div
+            class="discoveryPopupReward"
+            id="popupDiscoveryXP"
+        >
+            ⭐ +100 XP
+        </div>
+
+        <button
+            class="discoveryOKButton"
+            onclick="closeDiscoveryPopup()"
+        >
+            OK
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     LEAFLET
+===================================================== -->
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+
+<script>
+
+/* =====================================================
+   MAP INITIALISATION
+===================================================== */
+
+const map = L.map('map', {
+
+    zoomControl: false,
+
+    preferCanvas: true,
+
+    attributionControl: true
+
+});
+
+
+/*
+   IMPORTANT FIX:
+
+   We deliberately DON'T rely on setView() as the
+   starting location.
+
+   The map begins at a harmless UK position and is
+   moved to the real GPS position once GPS succeeds.
+*/
+
+map.setView(
+    [52.6083, 1.7305],
+    13
+);
+
+
+/* =====================================================
+   MAP TILES
+===================================================== */
+
+L.tileLayer(
+
+    'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+
+    {
+
+        attribution:
+            '&copy; OpenStreetMap contributors',
+
+        maxZoom:
+            19,
+
+        minZoom:
+            3,
+
+        detectRetina:
+            true
+
+    }
+
+).addTo(map);
+
+
+/* =====================================================
+   FOG PANE
+===================================================== */
+
+const fogPane =
+    map.createPane('fogPane');
+
+
+fogPane.style.zIndex =
+    500;
+
+
+fogPane.style.pointerEvents =
+    'none';
+
+
+/* =====================================================
+   PLAYER PANE
+===================================================== */
+
+const playerPane =
+    map.createPane('playerPane');
+
+
+playerPane.style.zIndex =
+    650;
+
+
+playerPane.style.pointerEvents =
+    'none';
+
+
+/* =====================================================
+   GAME SETTINGS
+===================================================== */
+
+const revealRadius =
+    5;
+
+
+/*
+   REAL EXPLORATION WIDTH
+
+   7.5m either side of walking route
+   = approximately 15m wide corridor.
+*/
+
+const explorationRadius =
+    7.5;
+
+
+const gridSize =
+    5;
+
+
+const maxGPSAccuracy =
+    10;
+
+
+const maxGPSJump =
+    15;
+
+
+const minimumMovement =
+    3;
+
+
+const gpsStabilityTime =
+    5000;
+
+
+/*
+   Walking speed limits.
+
+   3.0m/s = 10.8km/h.
+
+   Anything faster is treated as
+   vehicle-like movement.
+*/
+
+const maximumWalkingSpeed =
+    3.0;
+
+
+const hardVehicleSpeed =
+    4.0;
+
+
+const corridorSampleSpacing =
+    2.5;
+
+
+/* =====================================================
+   PLAYER
+===================================================== */
+
+let marker =
+    null;
+
+
+/* =====================================================
+   GPS STATE
+===================================================== */
+
+let acceptedLat =
+    null;
+
+
+let acceptedLng =
+    null;
+
+
+let acceptedTime =
+    null;
+
+
+let hasAcceptedGPS =
+    false;
+
+
+let gpsStableSince =
+    null;
+
+
+let vehicleDetected =
+    false;
+
+
+let vehicleSamples =
+    0;
+
+
+let firstGPSFix =
+    false;
+
+
+/*
+   Extra GPS state.
+
+   These help prevent the app appearing completely
+   dead if the browser takes a while to provide GPS.
+*/
+
+let gpsStarted =
+    false;
+
+
+let lastGPSReceived =
+    null;
+
+
+/* =====================================================
+   XP
+===================================================== */
+
+let playerXP =
+    parseInt(
+
+        localStorage.getItem(
+            'unlockedPlayerXP'
+        ) || '0',
+
+        10
+
+    );
+
+
+if (
+    !Number.isFinite(
+        playerXP
+    )
+) {
+
+    playerXP =
+        0;
+
+}
+
+
+/* =====================================================
+   LEVEL SYSTEM
+===================================================== */
+
+function getPlayerLevel() {
+
+    let level =
+        1;
+
+
+    let totalXP =
+        0;
+
+
+    while (
+
+        totalXP +
+        (
+            750 *
+            level *
+            level
+        )
+        <=
+        playerXP
+
+    ) {
+
+        totalXP +=
+            750 *
+            level *
+            level;
+
+
+        level++;
+
+    }
+
+
+    return level;
+
+}
+
+
+function getTotalXPRequiredForLevel(
+    level
+) {
+
+    let total =
+        0;
+
+
+    for (
+        let i = 1;
+        i < level;
+        i++
+    ) {
+
+        total +=
+            750 *
+            i *
+            i;
+
+    }
+
+
+    return total;
+
+}
+
+
+function getXPForNextLevel(
+    level
+) {
+
+    return (
+        750 *
+        level *
+        level
+    );
+
+}
+
+
+/* =====================================================
+   HUD
+===================================================== */
+
+function updatePlayerHUD() {
+
+    const level =
+        getPlayerLevel();
+
+
+    const levelElement =
+        document.getElementById(
+            'playerLevel'
+        );
+
+
+    if (
+        levelElement
+    ) {
+
+        levelElement.textContent =
+            'LEVEL ' + level;
+
+    }
+
+
+    const levelStartXP =
+        getTotalXPRequiredForLevel(
+            level
+        );
+
+
+    const nextLevelXP =
+        getXPForNextLevel(
+            level
+        );
+
+
+    const currentLevelXP =
+        Math.max(
+
+            0,
+
+            playerXP -
+            levelStartXP
+
+        );
+
+
+    const progress =
+        Math.min(
+
+            100,
+
+            Math.max(
+
+                0,
+
+                (
+                    currentLevelXP /
+                    nextLevelXP
+                ) *
+                100
+
+            )
+
+        );
+
+
+    const xpBar =
+        document.getElementById(
+            'xpBarFill'
+        );
+
+
+    if (
+        xpBar
+    ) {
+
+        xpBar.style.width =
+            progress + '%';
+
+    }
+
+}
+
+
+/* =====================================================
+   AWARD XP
+===================================================== */
+
+function awardXP(
+    amount
+) {
+
+    if (
+        !Number.isFinite(
+            amount
+        ) ||
+        amount <= 0
+    ) {
+
+        return;
+
+    }
+
+
+    const oldLevel =
+        getPlayerLevel();
+
+
+    playerXP +=
+        amount;
+
+
+    localStorage.setItem(
+
+        'unlockedPlayerXP',
+
+        String(
+            playerXP
+        )
+
+    );
+
+
+    const newLevel =
+        getPlayerLevel();
+
+
+    updatePlayerHUD();
+
+
+    updateProgressPanel();
+
+
+    /*
+       Simple level-up status for now.
+
+       We'll turn this into the proper
+       UNLOCKED level-up animation/sound later.
+    */
+
+    if (
+        newLevel >
+        oldLevel
+    ) {
+
+        document.getElementById(
+            'status'
+        ).textContent =
+
+            '🎉 LEVEL ' +
+            newLevel +
+            ' REACHED!';
+
+    }
+
+}
+
+
+/* =====================================================
+   GRID STORAGE
+===================================================== */
+
+let exploredGridCells =
+    [];
+
+
+try {
+
+    exploredGridCells =
+        JSON.parse(
+
+            localStorage.getItem(
+                'unlockedGridCells'
+            ) || '[]'
+
+        );
+
+
+    if (
+        !Array.isArray(
+            exploredGridCells
+        )
+    ) {
+
+        exploredGridCells =
+            [];
+
+    }
+
+}
+catch (
+    error
+) {
+
+    console.error(
+        'Could not load grid:',
+        error
+    );
+
+
+    exploredGridCells =
+        [];
+
+}
+
+
+/* =====================================================
+   EARTH / GRID
+===================================================== */
+
+const EARTH_RADIUS =
+    6378137;
+
+
+/* =====================================================
+   LAT/LNG → METRES
+===================================================== */
+
+function latLngToMetres(
+    lat,
+    lng
+) {
+
+    const x =
+
+        EARTH_RADIUS *
+        lng *
+        Math.PI /
+        180;
+
+
+    const y =
+
+        EARTH_RADIUS *
+
+        Math.log(
+
+            Math.tan(
+
+                Math.PI / 4 +
+
+                (
+                    lat *
+                    Math.PI /
+                    180
+                ) / 2
+
+            )
+
+        );
+
+
+    return {
+
+        x:
+            x,
+
+        y:
+            y
+
+    };
+
+}
+
+
+/* =====================================================
+   METRES → LAT/LNG
+===================================================== */
+
+function metresToLatLng(
+    x,
+    y
+) {
+
+    const lng =
+
+        (
+            x /
+            EARTH_RADIUS
+        )
+        *
+        180 /
+        Math.PI;
+
+
+    const lat =
+
+        (
+
+            2 *
+            Math.atan(
+
+                Math.exp(
+
+                    y /
+                    EARTH_RADIUS
+
+                )
+
+            )
+
+            -
+            Math.PI / 2
+
+        )
+        *
+        180 /
+        Math.PI;
+
+
+    return {
+
+        lat:
+            lat,
+
+        lng:
+            lng
+
+    };
+
+}
+
+
+/* =====================================================
+   GET GRID CELL
+===================================================== */
+
+function getGridCell(
+    lat,
+    lng
+) {
+
+    const metres =
+        latLngToMetres(
+            lat,
+            lng
+        );
+
+
+    const cellX =
+        Math.floor(
+
+            metres.x /
+            gridSize
+
+        );
+
+
+    const cellY =
+        Math.floor(
+
+            metres.y /
+            gridSize
+
+        );
+
+
+    return {
+
+        x:
+            cellX,
+
+        y:
+            cellY,
+
+        key:
+
+            cellX +
+            '_' +
+            cellY
+
+    };
+
+}
+
+
+/* =====================================================
+   CELL DISTANCE
+===================================================== */
+
+function distancePointToCell(
+
+    pointX,
+    pointY,
+
+    cellX,
+    cellY
+
+) {
+
+    const cellMinX =
+        cellX *
+        gridSize;
+
+
+    const cellMaxX =
+        (
+            cellX +
+            1
+        )
+        *
+        gridSize;
+
+
+    const cellMinY =
+        cellY *
+        gridSize;
+
+
+    const cellMaxY =
+        (
+            cellY +
+            1
+        )
+        *
+        gridSize;
+
+
+    let closestX =
+        pointX;
+
+
+    let closestY =
+        pointY;
+
+
+    if (
+        pointX <
+        cellMinX
+    ) {
+
+        closestX =
+            cellMinX;
+
+    }
+    else if (
+        pointX >
+        cellMaxX
+    ) {
+
+        closestX =
+            cellMaxX;
+
+    }
+
+
+    if (
+        pointY <
+        cellMinY
+    ) {
+
+        closestY =
+            cellMinY;
+
+    }
+    else if (
+        pointY >
+        cellMaxY
+    ) {
+
+        closestY =
+            cellMaxY;
+
+    }
+
+
+    const dx =
+        pointX -
+        closestX;
+
+
+    const dy =
+        pointY -
+        closestY;
+
+
+    return Math.sqrt(
+
+        (
+            dx *
+            dx
+        )
+
+        +
+
+        (
+            dy *
+            dy
+        )
+
+    );
+
+}
+
+
+/* =====================================================
+   UNLOCK CELLS AROUND POINT
+===================================================== */
+
+function unlockCellsAroundPoint(
+    lat,
+    lng
+) {
+
+    const metres =
+        latLngToMetres(
+            lat,
+            lng
+        );
+
+
+    const centreCell =
+        getGridCell(
+            lat,
+            lng
+        );
+
+
+    const cellRange =
+        Math.ceil(
+
+            explorationRadius /
+            gridSize
+
+        ) + 1;
+
+
+    let newCells =
+        0;
+
+
+    for (
+
+        let x =
+            centreCell.x -
+            cellRange;
+
+        x <=
+            centreCell.x +
+            cellRange;
+
+        x++
+
+    ) {
+
+        for (
+
+            let y =
+                centreCell.y -
+                cellRange;
+
+            y <=
+                centreCell.y +
+                cellRange;
+
+            y++
+
+        ) {
+
+            const key =
+                x +
+                '_' +
+                y;
+
+
+            if (
+                exploredGridCells.includes(
+                    key
+                )
+            ) {
+
+                continue;
+
+            }
+
+
+            const distance =
+                distancePointToCell(
+
+                    metres.x,
+                    metres.y,
+
+                    x,
+                    y
+
+                );
+
+
+            if (
+                distance <=
+                explorationRadius
+            ) {
+
+                exploredGridCells.push(
+                    key
+                );
+
+
+                newCells++;
+
+            }
+
+        }
+
+    }
+
+
+    if (
+        newCells > 0
+    ) {
+
+        localStorage.setItem(
+
+            'unlockedGridCells',
+
+            JSON.stringify(
+                exploredGridCells
+            )
+
+        );
+
+
+        awardXP(
+
+            newCells *
+            25
+
+        );
+
+
+        updateExplorationDisplay();
+
+    }
+
+
+    return newCells;
+
+}
+
+
+/* =====================================================
+   WALKING CORRIDOR
+===================================================== */
+
+function unlockWalkingCorridor(
+
+    startLat,
+    startLng,
+
+    endLat,
+    endLng
+
+) {
+
+    const start =
+        latLngToMetres(
+
+            startLat,
+            startLng
+
+        );
+
+
+    const end =
+        latLngToMetres(
+
+            endLat,
+            endLng
+
+        );
+
+
+    const dx =
+        end.x -
+        start.x;
+
+
+    const dy =
+        end.y -
+        start.y;
+
+
+    const distance =
+        Math.sqrt(
+
+            (
+                dx *
+                dx
+            )
+
+            +
+
+            (
+                dy *
+                dy
+            )
+
+        );
+
+
+    const samples =
+        Math.max(
+
+            1,
+
+            Math.ceil(
+
+                distance /
+                corridorSampleSpacing
+
+            )
+
+        );
+
+
+    let totalNewCells =
+        0;
+
+
+    for (
+
+        let i = 0;
+        i <= samples;
+        i++
+
+    ) {
+
+        const ratio =
+            i /
+            samples;
+
+
+        const x =
+
+            start.x +
+            dx *
+            ratio;
+
+
+        const y =
+
+            start.y +
+            dy *
+            ratio;
+
+
+        const position =
+            metresToLatLng(
+                x,
+                y
+            );
+
+
+        totalNewCells +=
+
+            unlockCellsAroundPoint(
+
+                position.lat,
+                position.lng
+
+            );
+
+    }
+
+
+    if (
+        totalNewCells === 0
+    ) {
+
+        document.getElementById(
+            'status'
+        ).textContent =
+
+            'UNLOCKED — AREA ALREADY EXPLORED';
+
+    }
+
+
+    drawFog();
+
+}
+<!-- =====================================================
+     FOG CANVAS
+===================================================== */
+
+const fogCanvas =
+    document.createElement('canvas');
+
+
+fogCanvas.style.position =
+    'absolute';
+
+fogCanvas.style.left =
+    '0';
+
+fogCanvas.style.top =
+    '0';
+
+fogCanvas.style.width =
+    '100%';
+
+fogCanvas.style.height =
+    '100%';
+
+fogCanvas.style.pointerEvents =
+    'none';
+
+
+fogPane.appendChild(
+    fogCanvas
+);
+
+
+const fogContext =
+    fogCanvas.getContext('2d');
+
+
+/* =====================================================
+   FOG RESIZE
+===================================================== */
+
+function resizeFog() {
+
+    const size =
+        map.getSize();
+
+
+    if (
+        !size ||
+        size.x <= 0 ||
+        size.y <= 0
+    ) {
+
+        return;
+
+    }
+
+
+    const pixelRatio =
+        window.devicePixelRatio ||
+        1;
+
+
+    fogCanvas.width =
+        Math.round(
+            size.x *
+            pixelRatio
+        );
+
+
+    fogCanvas.height =
+        Math.round(
+            size.y *
+            pixelRatio
+        );
+
+
+    fogCanvas.style.width =
+        size.x + 'px';
+
+
+    fogCanvas.style.height =
+        size.y + 'px';
+
+
+    fogContext.setTransform(
+
+        pixelRatio,
+        0,
+        0,
+        pixelRatio,
+        0,
+        0
+
+    );
+
+
+    drawFog();
+
+}
+
+
+/* =====================================================
+   FOG DRAW
+===================================================== */
+
+function drawFog() {
+
+    const size =
+        map.getSize();
+
+
+    if (
+        !size ||
+        size.x <= 0 ||
+        size.y <= 0
+    ) {
+
+        return;
+
+    }
+
+
+    /*
+       Reset drawing state.
+    */
+
+    fogContext.setTransform(
+
+        window.devicePixelRatio || 1,
+        0,
+        0,
+        window.devicePixelRatio || 1,
+        0,
+        0
+
+    );
+
+
+    fogContext.globalCompositeOperation =
+        'source-over';
+
+
+    /*
+       Clear the visible canvas.
+    */
+
+    fogContext.clearRect(
+
+        0,
+        0,
+
+        size.x,
+        size.y
+
+    );
+
+
+    /*
+       Draw the full fog.
+    */
+
+    fogContext.fillStyle =
+        'rgba(17,17,17,0.93)';
+
+
+    fogContext.fillRect(
+
+        0,
+        0,
+
+        size.x,
+        size.y
+
+    );
+
+
+    /*
+       Remove fog from explored cells.
+    */
+
+    fogContext.globalCompositeOperation =
+        'destination-out';
+
+
+    for (
+        const key of exploredGridCells
+    ) {
+
+        const parts =
+            key.split('_');
+
+
+        const cellX =
+            parseInt(
+                parts[0],
+                10
+            );
+
+
+        const cellY =
+            parseInt(
+                parts[1],
+                10
+            );
+
+
+        if (
+            !Number.isFinite(cellX) ||
+            !Number.isFinite(cellY)
+        ) {
+
+            continue;
+
+        }
+
+
+        /*
+           Convert the four corners of the
+           5m x 5m cell into map pixels.
+        */
+
+        const southWest =
+            metresToLatLng(
+
+                cellX *
+                gridSize,
+
+                cellY *
+                gridSize
+
+            );
+
+
+        const northEast =
+            metresToLatLng(
+
+                (
+                    cellX + 1
+                ) *
+                gridSize,
+
+                (
+                    cellY + 1
+                ) *
+                gridSize
+
+            );
+
+
+        const topLeft =
+            map.latLngToContainerPoint(
+
+                L.latLng(
+
+                    northEast.lat,
+                    southWest.lng
+
+                )
+
+            );
+
+
+        const bottomRight =
+            map.latLngToContainerPoint(
+
+                L.latLng(
+
+                    southWest.lat,
+                    northEast.lng
+
+                )
+
+            );
+
+
+        const width =
+            bottomRight.x -
+            topLeft.x;
+
+
+        const height =
+            bottomRight.y -
+            topLeft.y;
+
+
+        /*
+           Ignore cells which are completely
+           outside the current screen.
+        */
+
+        if (
+            bottomRight.x < 0 ||
+            topLeft.x > size.x ||
+            bottomRight.y < 0 ||
+            topLeft.y > size.y
+        ) {
+
+            continue;
+
+        }
+
+
+        fogContext.fillRect(
+
+            topLeft.x,
+            topLeft.y,
+
+            width,
+            height
+
+        );
+
+    }
+
+
+    /*
+       Restore normal drawing.
+    */
+
+    fogContext.globalCompositeOperation =
+        'source-over';
+
+}
+
+
+/* =====================================================
+   FOG MAP EVENTS
+===================================================== */
+
+map.on(
+    'move',
+    drawFog
+);
+
+
+map.on(
+    'zoom',
+    drawFog
+);
+
+
+map.on(
+    'moveend',
+    drawFog
+);
+
+
+map.on(
+    'zoomend',
+    drawFog
+);
+
+
+map.on(
+    'resize',
+    resizeFog
+);
+
+
+window.addEventListener(
+    'resize',
+    resizeFog
+);
+
+
+/* =====================================================
+   LOCATION STATE
+===================================================== */
+
+let currentAreaName =
+    null;
+
+
+let currentAreaBoundary =
+    null;
+
+
+let locationRequestInProgress =
+    false;
+
+
+let lastLocationLookupLat =
+    null;
+
+
+let lastLocationLookupLng =
+    null;
+
+
+/* =====================================================
+   DISTANCE
+===================================================== */
+
+function distanceMetres(
+
+    lat1,
+    lng1,
+
+    lat2,
+    lng2
+
+) {
+
+    const R =
+        6371000;
+
+
+    const dLat =
+
+        (
+            lat2 -
+            lat1
+        )
+        *
+        Math.PI /
+        180;
+
+
+    const dLng =
+
+        (
+            lng2 -
+            lng1
+        )
+        *
+        Math.PI /
+        180;
+
+
+    const a =
+
+        Math.sin(
+            dLat / 2
+        ) ** 2
+
+        +
+
+        Math.cos(
+
+            lat1 *
+            Math.PI /
+            180
+
+        )
+
+        *
+
+        Math.cos(
+
+            lat2 *
+            Math.PI /
+            180
+
+        )
+
+        *
+
+        Math.sin(
+            dLng / 2
+        ) ** 2;
+
+
+    return (
+
+        R *
+        2 *
+        Math.atan2(
+
+            Math.sqrt(a),
+
+            Math.sqrt(
+                1 - a
+            )
+
+        )
+
+    );
+
+}
+
+
+/* =====================================================
+   GEOJSON POINT TEST
+===================================================== */
+
+function pointInPolygon(
+    point,
+    polygon
+) {
+
+    let inside =
+        false;
+
+
+    for (
+
+        let i = 0,
+        j = polygon.length - 1;
+
+        i < polygon.length;
+
+        j = i++
+
+    ) {
+
+        const xi =
+            polygon[i][0];
+
+
+        const yi =
+            polygon[i][1];
+
+
+        const xj =
+            polygon[j][0];
+
+
+        const yj =
+            polygon[j][1];
+
+
+        const intersect =
+
+            (
+                yi >
+                point[1]
+            )
+
+            !==
+
+            (
+                yj >
+                point[1]
+            )
+
+            &&
+
+            (
+
+                point[0]
+
+                <
+
+                (
+
+                    (
+                        xj - xi
+                    )
+
+                    *
+
+                    (
+                        point[1] - yi
+                    )
+
+                    /
+
+                    (
+                        yj - yi
+                    )
+
+                )
+
+                +
+
+                xi
+
+            );
+
+
+        if (
+            intersect
+        ) {
+
+            inside =
+                !inside;
+
+        }
+
+    }
+
+
+    return inside;
+
+}
+
+
+/* =====================================================
+   GEOJSON TEST
+===================================================== */
+
+function pointInsideGeoJSON(
+
+    lat,
+    lng,
+    geojson
+
+) {
+
+    if (
+        !geojson
+    ) {
+
+        return false;
+
+    }
+
+
+    const point = [
+
+        lng,
+        lat
+
+    ];
+
+
+    if (
+        geojson.type ===
+        'Polygon'
+    ) {
+
+        return pointInPolygon(
+
+            point,
+
+            geojson.coordinates[0]
+
+        );
+
+    }
+
+
+    if (
+        geojson.type ===
+        'MultiPolygon'
+    ) {
+
+        for (
+            const polygon
+            of geojson.coordinates
+        ) {
+
+            if (
+                pointInPolygon(
+
+                    point,
+
+                    polygon[0]
+
+                )
+            ) {
+
+                return true;
+
+            }
+
+        }
+
+    }
+
+
+    if (
+        geojson.geometry
+    ) {
+
+        return pointInsideGeoJSON(
+
+            lat,
+            lng,
+
+            geojson.geometry
+
+        );
+
+    }
+
+
+    return false;
+
+}
+
+
+/* =====================================================
+   GEOJSON BOUNDS
+===================================================== */
+
+function getGeoJSONBounds(
+    geojson
+) {
+
+    if (
+        !geojson
+    ) {
+
+        return null;
+
+    }
+
+
+    const geometry =
+        geojson.geometry ||
+        geojson;
+
+
+    if (
+        !geometry.coordinates
+    ) {
+
+        return null;
+
+    }
+
+
+    let minLat =
+        Infinity;
+
+
+    let maxLat =
+        -Infinity;
+
+
+    let minLng =
+        Infinity;
+
+
+    let maxLng =
+        -Infinity;
+
+
+    function inspect(
+        coordinates
+    ) {
+
+        if (
+            !Array.isArray(
+                coordinates
+            )
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+
+            typeof coordinates[0] ===
+            'number'
+
+        ) {
+
+            const lng =
+                coordinates[0];
+
+
+            const lat =
+                coordinates[1];
+
+
+            minLng =
+                Math.min(
+                    minLng,
+                    lng
+                );
+
+
+            maxLng =
+                Math.max(
+                    maxLng,
+                    lng
+                );
+
+
+            minLat =
+                Math.min(
+                    minLat,
+                    lat
+                );
+
+
+            maxLat =
+                Math.max(
+                    maxLat,
+                    lat
+                );
+
+
+            return;
+
+        }
+
+
+        for (
+            const item
+            of coordinates
+        ) {
+
+            inspect(item);
+
+        }
+
+    }
+
+
+    inspect(
+        geometry.coordinates
+    );
+
+
+    if (
+
+        !Number.isFinite(minLat) ||
+        !Number.isFinite(maxLat) ||
+        !Number.isFinite(minLng) ||
+        !Number.isFinite(maxLng)
+
+    ) {
+
+        return null;
+
+    }
+
+
+    return {
+
+        minLat:
+            minLat,
+
+        maxLat:
+            maxLat,
+
+        minLng:
+            minLng,
+
+        maxLng:
+            maxLng
+
+    };
+
+}
 
 
 /* =====================================================
@@ -3072,16 +5504,18 @@ async function updateCurrentLocation(
 ) {
 
     /*
-       Prevent constant requests
-       to Nominatim.
+       Don't hammer Nominatim.
 
-       Only look up again after
-       moving roughly 100 metres.
+       Only request a new place after
+       approximately 100 metres.
     */
 
     if (
+
         lastLocationLookupLat !== null &&
+
         lastLocationLookupLng !== null
+
     ) {
 
         const lookupDistance =
@@ -3109,6 +5543,7 @@ async function updateCurrentLocation(
 
     lastLocationLookupLat =
         lat;
+
 
     lastLocationLookupLng =
         lng;
@@ -3138,7 +5573,18 @@ async function updateCurrentLocation(
                     addressdetails:
                         1
 
-                })
+                }),
+
+                {
+
+                    headers: {
+
+                        'Accept':
+                            'application/json'
+
+                    }
+
+                }
 
             );
 
@@ -3163,8 +5609,7 @@ async function updateCurrentLocation(
 
 
         /*
-           Choose the most useful
-           human-readable location.
+           Pick the most useful local name.
         */
 
         const newArea =
@@ -3197,22 +5642,42 @@ async function updateCurrentLocation(
                 null;
 
 
-            document.getElementById(
-                'currentLocation'
-            ).textContent =
-                currentAreaName;
+            const locationElement =
+                document.getElementById(
+                    'currentLocation'
+                );
 
 
-            document.getElementById(
-                'status'
-            ).textContent =
+            if (
+                locationElement
+            ) {
 
-                '📍 ' +
-                currentAreaName.toUpperCase();
+                locationElement.textContent =
+                    currentAreaName;
+
+            }
+
+
+            const statusElement =
+                document.getElementById(
+                    'status'
+                );
+
+
+            if (
+                statusElement
+            ) {
+
+                statusElement.textContent =
+
+                    '📍 ' +
+                    currentAreaName.toUpperCase();
+
+            }
 
 
             /*
-               Load the actual boundary.
+               Ask Nominatim for the area boundary.
             */
 
             loadAreaBoundary(
@@ -3220,7 +5685,6 @@ async function updateCurrentLocation(
                 currentAreaName,
 
                 lat,
-
                 lng
 
             );
@@ -3232,26 +5696,35 @@ async function updateCurrentLocation(
 
     }
 
-    catch (error) {
+    catch (
+        error
+    ) {
 
         console.error(
+
             'Place lookup error:',
             error
+
         );
 
 
         /*
-           Don't hide the last
-           successful location.
+           GPS is still valid even if
+           the place lookup fails.
         */
 
+        const locationElement =
+            document.getElementById(
+                'currentLocation'
+            );
+
+
         if (
+            locationElement &&
             !currentAreaName
         ) {
 
-            document.getElementById(
-                'currentLocation'
-            ).textContent =
+            locationElement.textContent =
                 'LOCATION FOUND';
 
         }
@@ -3288,11 +5761,6 @@ async function loadAreaBoundary(
 
     try {
 
-        /*
-           First attempt:
-           search the exact area.
-        */
-
         const response =
             await fetch(
 
@@ -3316,7 +5784,18 @@ async function loadAreaBoundary(
                     limit:
                         5
 
-                })
+                }),
+
+                {
+
+                    headers: {
+
+                        'Accept':
+                            'application/json'
+
+                    }
+
+                }
 
             );
 
@@ -3337,26 +5816,28 @@ async function loadAreaBoundary(
 
 
         if (
+            !Array.isArray(
+                results
+            ) ||
             results.length === 0
         ) {
 
             console.warn(
+
                 'No boundary found:',
                 areaName
+
             );
+
 
             return;
 
         }
 
 
-        /*
-           Choose the result closest
-           to the player's position.
-        */
-
         let bestResult =
             null;
+
 
         let bestDistance =
             Infinity;
@@ -3388,6 +5869,25 @@ async function loadAreaBoundary(
                 );
 
 
+            if (
+
+                !Number.isFinite(
+                    resultLat
+                )
+
+                ||
+
+                !Number.isFinite(
+                    resultLng
+                )
+
+            ) {
+
+                continue;
+
+            }
+
+
             const d =
                 distanceMetres(
 
@@ -3408,6 +5908,7 @@ async function loadAreaBoundary(
                 bestDistance =
                     d;
 
+
                 bestResult =
                     result;
 
@@ -3417,8 +5918,10 @@ async function loadAreaBoundary(
 
 
         if (
+
             bestResult &&
             bestResult.geojson
+
         ) {
 
             currentAreaBoundary =
@@ -3426,8 +5929,10 @@ async function loadAreaBoundary(
 
 
             console.log(
+
                 '🗺️ BOUNDARY LOADED:',
                 areaName
+
             );
 
 
@@ -3437,11 +5942,15 @@ async function loadAreaBoundary(
 
     }
 
-    catch (error) {
+    catch (
+        error
+    ) {
 
         console.error(
+
             'Boundary error:',
             error
+
         );
 
     }
@@ -3463,9 +5972,7 @@ async function loadAreaBoundary(
 function calculateAreaPercentage() {
 
     /*
-       If the boundary hasn't loaded yet,
-       keep the display at 0 rather than
-       showing a fake percentage.
+       Boundary not loaded yet.
     */
 
     if (
@@ -3502,6 +6009,7 @@ function calculateAreaPercentage() {
 
 
         if (
+
             pointInsideGeoJSON(
 
                 centre.lat,
@@ -3510,6 +6018,7 @@ function calculateAreaPercentage() {
                 currentAreaBoundary
 
             )
+
         ) {
 
             exploredInside++;
@@ -3518,11 +6027,6 @@ function calculateAreaPercentage() {
 
     }
 
-
-    /*
-       Work out the approximate number
-       of 5m x 5m cells in the area.
-    */
 
     const bounds =
         getGeoJSONBounds(
@@ -3574,14 +6078,6 @@ function calculateAreaPercentage() {
 
         );
 
-
-    /*
-       We use bounding-box area here.
-
-       It keeps the phone fast and
-       avoids checking potentially
-       millions of cells.
-    */
 
     const approximateArea =
         width *
@@ -3635,19 +6131,23 @@ function getCellCentreLatLng(
 
     const cellX =
         parseInt(
-            parts[0]
+            parts[0],
+            10
         );
 
 
     const cellY =
         parseInt(
-            parts[1]
+            parts[1],
+            10
         );
 
 
     if (
-        !isFinite(cellX) ||
-        !isFinite(cellY)
+
+        !Number.isFinite(cellX) ||
+        !Number.isFinite(cellY)
+
     ) {
 
         return null;
@@ -3694,8 +6194,18 @@ function updateLocationHUD() {
         );
 
 
+    if (
+        !locationElement ||
+        !percentageElement
+    ) {
+
+        return;
+
+    }
+
+
     /*
-       LOCATION
+       Location.
     */
 
     if (
@@ -3709,7 +6219,7 @@ function updateLocationHUD() {
 
 
     /*
-       PERCENTAGE
+       Percentage.
     */
 
     const percentage =
@@ -3733,637 +6243,6 @@ function updateExplorationDisplay() {
     updateLocationHUD();
 
 }
-
-
-/* =====================================================
-   GPS START
-===================================================== */
-
-map.locate({
-
-    setView: false,
-
-    watch: true,
-
-    enableHighAccuracy: true,
-
-    maximumAge: 1000,
-
-    timeout: 15000
-
-});
-
-
-/* =====================================================
-   GPS LOCATION FOUND
-===================================================== */
-
-map.on(
-
-    'locationfound',
-
-    function(e) {
-
-        const gpsLat =
-            e.latlng.lat;
-
-
-        const gpsLng =
-            e.latlng.lng;
-
-
-        const accuracy =
-            e.accuracy;
-
-
-        const gpsSpeed =
-            e.speed;
-
-
-        const gpsTimestamp =
-            e.timestamp ||
-            Date.now();
-
-
-        console.log(
-
-            'RAW GPS:',
-            gpsLat,
-            gpsLng,
-            'accuracy:',
-            accuracy,
-            'speed:',
-            gpsSpeed
-
-        );
-
-
-        /*
-           Update location immediately.
-
-           This happens independently
-           of walking validation.
-        */
-
-        updateCurrentLocation(
-
-            gpsLat,
-            gpsLng
-
-        );
-
-
-        /*
-           Weak GPS
-        */
-
-        if (
-            accuracy >
-            maxGPSAccuracy
-        ) {
-
-            document.getElementById(
-                'status'
-            ).textContent =
-
-                'GPS SIGNAL WEAK — ±' +
-                Math.round(
-                    accuracy
-                ) +
-                'm';
-
-
-            return;
-
-        }
-
-
-        /* =================================================
-           FIRST GPS FIX
-        ================================================= */
-
-        if (
-            !hasAcceptedGPS
-        ) {
-
-            hasAcceptedGPS =
-                true;
-
-
-            acceptedLat =
-                gpsLat;
-
-
-            acceptedLng =
-                gpsLng;
-
-
-            acceptedTime =
-                gpsTimestamp;
-
-
-            gpsStableSince =
-                Date.now();
-
-
-            vehicleDetected =
-                false;
-
-
-            vehicleSamples =
-                0;
-
-
-            document.getElementById(
-                'status'
-            ).textContent =
-
-                'UNLOCKED — GPS STABILISING — ±' +
-                Math.round(
-                    accuracy
-                ) +
-                'm';
-
-
-            if (
-                !firstGPSFix
-            ) {
-
-                firstGPSFix =
-                    true;
-
-
-                map.setView(
-
-                    e.latlng,
-
-                    16,
-
-                    {
-                        animate: false
-                    }
-
-                );
-
-            }
-
-
-            marker =
-                L.circleMarker(
-
-                    e.latlng,
-
-                    {
-
-                        pane:
-                            'playerPane',
-
-                        radius:
-                            9,
-
-                        color:
-                            'white',
-
-                        weight:
-                            2,
-
-                        fillColor:
-                            '#1683ff',
-
-                        fillOpacity:
-                            1
-
-                    }
-
-                ).addTo(map);
-
-
-            drawFog();
-
-            return;
-
-        }
-
-
-        /* =================================================
-           MOVEMENT
-        ================================================= */
-
-        const movement =
-            distanceMetres(
-
-                acceptedLat,
-                acceptedLng,
-
-                gpsLat,
-                gpsLng
-
-            );
-
-
-        const elapsedSeconds =
-            Math.max(
-
-                0.5,
-
-                (
-                    gpsTimestamp -
-                    acceptedTime
-                ) / 1000
-
-            );
-
-
-        const calculatedSpeed =
-            movement /
-            elapsedSeconds;
-
-
-        let effectiveSpeed =
-            calculatedSpeed;
-
-
-        if (
-
-            typeof gpsSpeed ===
-            'number'
-
-            &&
-
-            isFinite(gpsSpeed)
-
-            &&
-
-            gpsSpeed >= 0
-
-        ) {
-
-            effectiveSpeed =
-                Math.max(
-
-                    calculatedSpeed,
-
-                    gpsSpeed
-
-                );
-
-        }
-
-
-        console.log(
-
-            'MOVEMENT:',
-            movement.toFixed(1),
-            'm',
-
-            'TIME:',
-            elapsedSeconds.toFixed(1),
-            's',
-
-            'SPEED:',
-            effectiveSpeed.toFixed(2),
-            'm/s'
-
-        );
-
-
-        /* =================================================
-           VEHICLE GPS SPEED
-        ================================================= */
-
-        if (
-
-            typeof gpsSpeed ===
-            'number'
-
-            &&
-
-            isFinite(gpsSpeed)
-
-            &&
-
-            gpsSpeed >=
-            hardVehicleSpeed
-
-        ) {
-
-            vehicleDetected =
-                true;
-
-
-            vehicleSamples++;
-
-
-            document.getElementById(
-                'status'
-            ).textContent =
-
-                '🚗 VEHICLE MOVEMENT — EXPLORATION PAUSED';
-
-
-            acceptedLat =
-                gpsLat;
-
-
-            acceptedLng =
-                gpsLng;
-
-
-            acceptedTime =
-                gpsTimestamp;
-
-
-            if (
-                marker
-            ) {
-
-                marker.setLatLng(
-                    e.latlng
-                );
-
-            }
-
-
-            return;
-
-        }
-
-
-        /* =================================================
-           CALCULATED FAST MOVEMENT
-        ================================================= */
-
-        if (
-            calculatedSpeed >
-            maximumWalkingSpeed
-        ) {
-
-            vehicleDetected =
-                true;
-
-
-            vehicleSamples++;
-
-
-            document.getElementById(
-                'status'
-            ).textContent =
-
-                '🚗 FAST MOVEMENT — EXPLORATION PAUSED';
-
-
-            acceptedLat =
-                gpsLat;
-
-
-            acceptedLng =
-                gpsLng;
-
-
-            acceptedTime =
-                gpsTimestamp;
-
-
-            if (
-                marker
-            ) {
-
-                marker.setLatLng(
-                    e.latlng
-                );
-
-            }
-
-
-            return;
-
-        }
-
-
-        if (
-            effectiveSpeed <=
-            maximumWalkingSpeed
-        ) {
-
-            vehicleDetected =
-                false;
-
-        }
-
-
-        /* =================================================
-           GPS STABILISING
-        ================================================= */
-
-        if (
-
-            gpsStableSince !== null
-
-            &&
-
-            Date.now() -
-            gpsStableSince <
-            gpsStabilityTime
-
-        ) {
-
-            acceptedLat =
-                gpsLat;
-
-
-            acceptedLng =
-                gpsLng;
-
-
-            acceptedTime =
-                gpsTimestamp;
-
-
-            if (
-                marker
-            ) {
-
-                marker.setLatLng(
-                    e.latlng
-                );
-
-            }
-
-
-            document.getElementById(
-                'status'
-            ).textContent =
-                'UNLOCKED — GPS STABILISING';
-
-
-            return;
-
-        }
-
-
-        /* =================================================
-           MINIMUM MOVEMENT
-        ================================================= */
-
-        if (
-            movement <
-            minimumMovement
-        ) {
-
-            if (
-                marker
-            ) {
-
-                marker.setLatLng(
-                    e.latlng
-                );
-
-            }
-
-
-            return;
-
-        }
-
-
-        /* =================================================
-           GPS JUMP
-        ================================================= */
-
-        if (
-            movement >
-            maxGPSJump
-        ) {
-
-            console.log(
-
-                'GPS JUMP REJECTED:',
-                movement.toFixed(1),
-                'metres'
-
-            );
-
-
-            document.getElementById(
-                'status'
-            ).textContent =
-                'GPS SIGNAL — MOVEMENT CHECKING';
-
-
-            if (
-                marker
-            ) {
-
-                marker.setLatLng(
-                    e.latlng
-                );
-
-            }
-
-
-            return;
-
-        }
-
-
-        /* =================================================
-           VEHICLE STATE
-        ================================================= */
-
-        if (
-            vehicleDetected
-        ) {
-
-            document.getElementById(
-                'status'
-            ).textContent =
-
-                '🚗 VEHICLE MOVEMENT — EXPLORATION PAUSED';
-
-
-            acceptedLat =
-                gpsLat;
-
-
-            acceptedLng =
-                gpsLng;
-
-
-            acceptedTime =
-                gpsTimestamp;
-
-
-            return;
-
-        }
-
-
-        /* =================================================
-           ACCEPT WALKING MOVEMENT
-        ================================================= */
-
-        const previousLat =
-            acceptedLat;
-
-
-        const previousLng =
-            acceptedLng;
-
-
-        acceptedLat =
-            gpsLat;
-
-
-        acceptedLng =
-            gpsLng;
-
-
-        acceptedTime =
-            gpsTimestamp;
-
-
-        if (
-            marker
-        ) {
-
-            marker.setLatLng(
-                e.latlng
-            );
-
-        }
-
-
-        document.getElementById(
-            'status'
-        ).textContent =
-
-            'UNLOCKED — WALKING — ±' +
-            Math.round(
-                accuracy
-            ) +
-            'm';
-
-
-        unlockWalkingCorridor(
-
-            previousLat,
-            previousLng,
-
-            gpsLat,
-            gpsLng
-
-        );
-
-
-        updateExplorationDisplay();
-
-        drawFog();
-
-    }
-
-);
-
-
 /* =====================================================
    GPS ERROR
 ===================================================== */
@@ -4379,17 +6258,17 @@ map.on(
             e
         );
 
-
         document.getElementById(
             'status'
         ).textContent =
-
             'GPS ERROR — ' +
             e.message;
 
     }
 
 );
+
+
 /* =====================================================
    DISCOVERY SYSTEM
 ===================================================== */
